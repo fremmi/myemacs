@@ -91,8 +91,10 @@
  '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (es-mode emacsql emacsql-mysql auto-yasnippet ecb company-irony-c-headers docker-compose-mode magit yaml-mode docker docker-api docker-tramp dockerfile-mode yasnippet smart-compile magit-gerrit cmake-mode )))
- )
+    (flycheck-rtags company-irony es-mode emacsql emacsql-mysql auto-yasnippet ecb company-irony-c-headers docker-compose-mode magit yaml-mode docker docker-api docker-tramp dockerfile-mode yasnippet smart-compile magit-gerrit cmake-mode))))
+
+(eval-after-load 'company
+    '(add-to-list 'company-backends 'company-irony))
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -103,3 +105,23 @@
 
 (require 'rtags) ;; optional, must have rtags installed
 (cmake-ide-setup)
+
+(require 'flycheck-rtags)
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (when (derived-mode-p 'c-mode 'c++-mode)
+              (company-mode 1)
+	      (flycheck-mode 1)
+              (setq show-trailing-whitespace t))))
+
+
+
+(define-key c-mode-base-map (kbd "M-.")
+  (function rtags-find-symbol-at-point))
+(define-key c-mode-base-map (kbd "M-,")
+  (function rtags-find-references-at-point))
+(define-key c-mode-base-map (kbd "M-[")
+  (function rtags-location-stack-back))
+(define-key c-mode-base-map (kbd "M-]")
+  (function rtags-location-stack-forward))
+
