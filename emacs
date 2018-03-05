@@ -91,7 +91,7 @@
  '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (flycheck-rtags company-irony es-mode emacsql emacsql-mysql auto-yasnippet ecb company-irony-c-headers docker-compose-mode magit yaml-mode docker docker-api docker-tramp dockerfile-mode yasnippet smart-compile magit-gerrit cmake-mode))))
+    (eclim gradle-mode flycheck-rtags company-irony es-mode emacsql emacsql-mysql auto-yasnippet ecb company-irony-c-headers docker-compose-mode magit yaml-mode docker docker-api docker-tramp dockerfile-mode yasnippet smart-compile magit-gerrit cmake-mode))))
 
 (eval-after-load 'company
     '(add-to-list 'company-backends 'company-irony))
@@ -125,3 +125,8 @@
 (define-key c-mode-base-map (kbd "M-]")
   (function rtags-location-stack-forward))
 
+(setq eclim-executable "/usr/local/src/sts-bundle/sts-3.9.2.RELEASE/plugins/org.eclim_2.7.2/bin/eclim")
+
+
+(require 'gradle-mode)
+(add-hook 'java-mode-hook '(lambda() (gradle-mode 1)))
