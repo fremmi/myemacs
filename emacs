@@ -164,7 +164,7 @@
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(c-basic-offset 8)
  '(c-default-style "ellemtel")
- '(custom-enabled-themes (quote (wheatgrass)))
+ '(custom-enabled-themes (quote (manoj-dark)))
  '(global-semantic-decoration-mode t)
  '(global-semantic-highlight-edits-mode t)
  '(global-semantic-highlight-func-mode t)
