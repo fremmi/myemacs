@@ -98,44 +98,6 @@
 
 (setq show-trailing-whitespace t)
 
-;; (add-to-list 'load-path "~/.emacs.d/elpa/magit/lisp")
-;; (require 'magit)
-
-;; (with-eval-after-load 'info
-;;   (info-initialize)
-;;   (add-to-list 'Info-directory-list
-;;                       "~/.emacs.d/elpa/magit/Documentation/"))
-
-;; (add-to-list 'load-path "~/.emacs.d/elpa/magit-gerrit")
-;; (require 'magit-gerrit)
-
-;; if remote url is not using the default gerrit port and
-;; ssh scheme, need to manually set this variable
-;; (setq-default magit-gerrit-ssh-creds "femmi@gerrit.minervanetworks.com")
-
-
-;; if necessary, use an alternative remote instead of 'origin'
-;; (setq-default magit-gerrit-remote "origin")
-
-
-;; (setq magit-repo-dirs '("/home/fremmi/source/" "/home/fremmi/source/"))
-
-;; (eval-after-load "magit"
-;;   '(mapc (apply-partially 'add-to-list 'magit-repo-dirs)
-;;                '("~/source/dss" "~/source/itvbackend")))
-
-
-
-
-;; (add-to-list 'load-path (format "%s/jdee-2.4.1/lisp" "/home/fremmi/.emacs.d"))
-;; (autoload 'jde-mode "jde" "JDE mode" t)
-;; (setq auto-mode-alist
-;;               (append '(("\\.java\\'" . jde-mode)) auto-mode-alist))
-
-
-
-
-
 
 (defun epoch-to-string (start end)
   "Fai qualcosa di bello"
