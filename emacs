@@ -123,7 +123,7 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(ansi-color-names-vector
-   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
+   ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#e090d7" "#8cc4ff" "#eeeeec"])
  '(c-basic-offset 8)
  '(c-default-style "ellemtel")
  '(custom-enabled-themes (quote (manoj-dark)))
@@ -142,9 +142,7 @@
  '(semantic-complete-inline-analyzer-idle-displayor-class (quote semantic-displayor-tooltip))
  '(semantic-idle-scheduler-idle-time 0.2)
  '(semantic-mode nil)
- '(semanticdb-project-roots
-   (quote
-    ("/home/fremmi/draios/sysdig/" "/home/fremmi/draios/dragent/"))))
+ '(semanticdb-project-roots (quote ("/code/agent"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
