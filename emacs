@@ -1,4 +1,4 @@
- (setq show-trailing-whitespace t)
+(setq show-trailing-whitespace t)
 
 (setq password-cache-expiry nil)
 
@@ -24,7 +24,7 @@
 
 
 (setq org-support-shift-select t)
-(setq org-clock-idle-time 60)
+;(setq org-clock-idle-time 60)
 
 (add-hook 'org-mode-hook
           (lambda ()
@@ -34,46 +34,11 @@
             (org-defkey org-mode-map [?\C-c (left)] 'windmove-left)))
 
 
-(autoload 'gid "idutils" nil t)
-(autoload 'ggtags-mode "gtags" "" t)
-(global-set-key (kbd "M-.") 'gtags-find-tag)
-(global-set-key (kbd "M-,") 'gtags-find-rtag)
-
-
-
-
-
-
-(add-to-list 'semantic-default-submodes 'global-semantic-idle-completions-mode)
-(add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
-;; (add-to-list 'load-path "~/.emacs.d/elpa")
-
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 (package-initialize)
 
-(require 'auto-complete)
-(require 'auto-complete-config)
-(ac-config-default)
-
-(require 'yasnippet)
-(yas-global-mode 1)
-
-(defun my:ac-c-header-init()
-  (require 'auto-complete-c-headers)
-  (add-to-list 'ac-sources 'ac-source-c-headers)
-  (add-to-list 'achead:include-directories '"/usr/include/c++/5/"))
-
-(require 'ggtags)
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
-              (ggtags-mode 1)
-              (semantic-mode 1)
-              (setq show-trailing-whitespace t))))
-
-(add-hook 'c-mode-common-hook 'my:ac-c-header-init)
 
 (add-hook 'c-mode-common-hook
   (lambda()
@@ -96,7 +61,7 @@
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 
-(setq show-trailing-whitespace t)
+;; (setq show-trailing-whitespace t)
 
 
 (defun epoch-to-string (start end)
@@ -115,39 +80,73 @@
 (defun go-to-column (column)
   (interactive "nColumn: ")
   (move-to-column column t))
+
+
+(require 'rtags) ;; optional, must have rtags installed
+(global-flycheck-mode)
+(cmake-ide-setup)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default default default italic underline success warning error])
- '(ansi-color-names-vector
-   ["#212526" "#ff4b4b" "#b4fa70" "#fce94f" "#729fcf" "#e090d7" "#8cc4ff" "#eeeeec"])
  '(c-basic-offset 8)
- '(c-default-style "ellemtel")
- '(custom-enabled-themes (quote (manoj-dark)))
- '(global-ede-mode t)
- '(global-semantic-decoration-mode nil)
- '(global-semantic-highlight-edits-mode nil)
- '(global-semantic-highlight-func-mode nil)
- '(global-semantic-idle-completions-mode t nil (semantic/idle))
- '(global-semantic-idle-scheduler-mode nil)
- '(global-semantic-idle-summary-mode nil)
- '(global-semantic-stickyfunc-mode nil)
- '(global-semanticdb-minor-mode t)
- '(indent-tabs-mode t)
+ '(c-default-style
+   (quote
+    ((c-mode . "ellemtel")
+     (c++-mode . "ellemtel")
+     (java-mode . "java")
+     (awk-mode . "awk")
+     (other . "gnu"))))
+ '(company-auto-complete (quote (quote company-explicit-action-p)))
+ '(company-auto-complete-chars (quote (32 95 41 119 46 36 39 47 124 33)))
+ '(global-company-mode t)
  '(package-selected-packages
    (quote
-    (es-mode emacsql emacsql-mysql auto-yasnippet ecb company-irony-c-headers docker-compose-mode magit yaml-mode docker docker-api docker-tramp dockerfile-mode yasnippet smart-compile magit-gerrit ggtags cmake-mode auto-complete-c-headers)))
- '(semantic-complete-inline-analyzer-idle-displayor-class (quote semantic-displayor-tooltip))
- '(semantic-default-submodes nil)
- '(semantic-idle-scheduler-idle-time 0.2)
- '(semantic-mode t)
- '(semanticdb-project-roots (quote ("/code/agent"))))
+    (company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+;; ensure that we use only rtags checking
+;; https://github.com/Andersbakken/rtags#optional-1 
+(defun setup-flycheck-rtags ()
+  (interactive)
+  (flycheck-select-checker 'rtags)
+  ;; RTags creates more accurate overlays.
+  (setq-local flycheck-highlighting-mode nil)
+  (setq-local flycheck-check-syntax-automatically nil))
+
+ 
+
+;; only run this if rtags is installed
+(when (require 'rtags nil :noerror)
+  ;; make sure you have company-mode installed
+  (require 'company)
+  (define-key c-mode-base-map (kbd "M-.")
+    (function rtags-find-symbol-at-point))
+  (define-key c-mode-base-map (kbd "M-,")
+    (function rtags-find-references-at-point))
+  ;; disable prelude's use of C-c r, as this is the rtags keyboard prefix
+  ;; (define-key prelude-mode-map (kbd "C-c r") nil)
+  ;; install standard rtags keybindings. Do M-. on the symbol below to
+  ;; jump to definition and see the keybindings.
+  (rtags-enable-standard-keybindings)
+  ;; comment this out if you don't have or don't use helm
+  ;; (setq rtags-use-helm t)
+  ;; company completion setup
+  (setq rtags-autostart-diagnostics t)
+  (rtags-diagnostics)
+  (setq rtags-completions-enabled t)
+  (push 'company-rtags company-backends)
+  (global-company-mode)
+  (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
+  ;; use rtags flycheck mode -- clang warnings shown inline
+  (require 'flycheck-rtags)
+  ;; c-mode-common-hook is also called by c++-mode
+  (add-hook 'c-mode-common-hook #'setup-flycheck-rtags))
