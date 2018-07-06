@@ -99,6 +99,10 @@
      (java-mode . "java")
      (awk-mode . "awk")
      (other . "gnu"))))
+ '(cmake-ide-build-dir "/code/agent/build/debug")
+ '(cmake-ide-cmake-opts
+   "-DCMAKE_BUILD_TYPE=Debug -DDRAIOS_DEPENDENCIES_DIR=/code/agent/dependencies -DJAVA_HOME=/code/agent/dependencies/jdk1.7.0_75 -DAGENT_VERSION=0.1.1dev -DSTATSITE_VERSION=0.7.0-sysdig5 -DBUILD_DRIVER=ON -DBUILD_BPF=OFF -DPACKAGE_DEB_ONLY=OFF")
+ '(cmake-ide-make-command "make --no-print-directory -j4 install")
  '(company-auto-complete (quote (quote company-explicit-action-p)))
  '(company-auto-complete-chars (quote (32 95 41 119 46 36 39 47 124 33)))
  '(global-company-mode t)
