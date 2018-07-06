@@ -108,7 +108,7 @@
  '(global-company-mode t)
  '(package-selected-packages
    (quote
-    (company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers))))
+    (meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -154,3 +154,5 @@
   (require 'flycheck-rtags)
   ;; c-mode-common-hook is also called by c++-mode
   (add-hook 'c-mode-common-hook #'setup-flycheck-rtags))
+
+
