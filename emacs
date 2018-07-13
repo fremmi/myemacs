@@ -1,5 +1,4 @@
-(setq show-trailing-whitespace t)
-
+;;; Code:
 (setq password-cache-expiry nil)
 
 (setq-default indent-tabs-mode nil)
@@ -14,8 +13,8 @@
 
 (define-key input-decode-map "\e[H" [home])
 (define-key input-decode-map "\e[F" [end])
-(define-key input-decode-map "\e[1;5A" [C-up])
-(define-key input-decode-map "\e[1;5B" [C-down])
+;; (define-key input-decode-map "\e[1;5A" [C-up])
+;; (define-key input-decode-map "\e[1;5B" [C-down])
 (define-key input-decode-map "\e[1;3A" [M-up])
 ;;(define-key input-decode-map "\e[1;5B" [M-down])
 (define-key input-decode-map "\e[1;3B" [M-down])
@@ -60,8 +59,6 @@
 
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-
-;; (setq show-trailing-whitespace t)
 
 
 (defun epoch-to-string (start end)
@@ -108,7 +105,8 @@
  '(global-company-mode t)
  '(package-selected-packages
    (quote
-    (meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers))))
+    (meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+ '(show-trailing-whitespace t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
