@@ -1,8 +1,6 @@
 ;;; Code:
 (setq password-cache-expiry nil)
 
-(setq-default indent-tabs-mode nil)
-
 (require 'ido) (ido-mode t)
 
 (global-set-key (kbd "C-c <left>")  'windmove-left)
@@ -103,10 +101,12 @@
  '(company-auto-complete (quote (quote company-explicit-action-p)))
  '(company-auto-complete-chars (quote (32 95 41 119 46 36 39 47 124 33)))
  '(global-company-mode t)
+ '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
- '(show-trailing-whitespace t))
+    (kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+ '(show-trailing-whitespace t)
+ '(standard-indent 8))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
