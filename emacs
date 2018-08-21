@@ -104,7 +104,7 @@
  '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(show-trailing-whitespace t)
  '(standard-indent 8))
 (custom-set-faces
