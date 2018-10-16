@@ -100,6 +100,10 @@
  '(cmake-ide-make-command "make --no-print-directory -j4 install")
  '(company-auto-complete (quote (quote company-explicit-action-p)))
  '(company-auto-complete-chars (quote (32 95 41 119 46 36 39 47 124 33)))
+ '(company-idle-delay 0.2)
+ '(custom-safe-themes
+   (quote
+    ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
  '(global-company-mode t)
  '(indent-tabs-mode t)
  '(package-selected-packages
