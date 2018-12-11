@@ -108,7 +108,7 @@
  '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(show-trailing-whitespace t)
  '(standard-indent 8))
 (custom-set-faces
@@ -178,3 +178,4 @@
 ;; ;; enable autopep8 formatting on save
 ;; (require 'py-autopep8)
 ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+(put 'narrow-to-region 'disabled nil)
