@@ -109,6 +109,7 @@
  '(package-selected-packages
    (quote
     (docker-api docker-compose-mode magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+ '(safe-local-variable-values (quote ((standard-indent . 4))))
  '(show-trailing-whitespace t)
  '(standard-indent 8))
 (custom-set-faces
