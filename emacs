@@ -96,11 +96,13 @@
      (other . "gnu"))))
  '(cmake-ide-build-dir "/code/agent/build/debug")
  '(cmake-ide-cmake-opts
-   "-DCMAKE_BUILD_TYPE=Debug -DDRAIOS_DEPENDENCIES_DIR=/code/agent/dependencies -DJAVA_HOME=/code/agent/dependencies/jdk1.7.0_75 -DAGENT_VERSION=0.1.1dev -DSTATSITE_VERSION=0.7.0-sysdig5 -DBUILD_DRIVER=ON -DBUILD_BPF=OFF -DPACKAGE_DEB_ONLY=OFF")
+   "-DCMAKE_BUILD_TYPE=Debug -DBUILD_WARNINGS_AS_ERRORS=OFF -DDRAIOS_DEPENDENCIES_DIR=/code/agent/dependencies -DJAVA_HOME=/code/agent/dependencies/jdk1.7.0_75 -DAGENT_VERSION=0.1.1dev -DSTATSITE_VERSION=0.7.0-sysdig5 -DBUILD_DRIVER=ON -DBUILD_BPF=OFF -DPACKAGE_DEB_ONLY=OFF")
  '(cmake-ide-make-command "make --no-print-directory -j4 install")
- '(company-auto-complete (quote (quote company-explicit-action-p)))
- '(company-auto-complete-chars (quote (32 95 41 119 46 36 39 47 124 33)))
- '(company-idle-delay 0.2)
+ '(company-auto-complete nil)
+ '(company-auto-complete-chars "")
+ '(company-idle-delay 0)
+ '(company-require-match nil)
+ '(company-selection-wrap-around t)
  '(custom-safe-themes
    (quote
     ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
@@ -108,7 +110,7 @@
  '(indent-tabs-mode t)
  '(package-selected-packages
    (quote
-    (docker-api docker-compose-mode magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (wsd-mode plantuml-mode typescript-mode md-readme neato-graph-bar w3 docker-api docker-compose-mode magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(safe-local-variable-values (quote ((standard-indent . 4))))
  '(show-trailing-whitespace t)
  '(standard-indent 8))
@@ -119,6 +121,7 @@
  ;; If there is more than one, they won't work right.
  )
 
+(company-tng-configure-default)
 
 ;; ensure that we use only rtags checking
 ;; https://github.com/Andersbakken/rtags#optional-1 
@@ -156,7 +159,8 @@
   ;; use rtags flycheck mode -- clang warnings shown inline
   (require 'flycheck-rtags)
   ;; c-mode-common-hook is also called by c++-mode
-  (add-hook 'c-mode-common-hook #'setup-flycheck-rtags))
+  (add-hook 'c++-mode #'setup-flycheck-rtags)
+  (add-hook 'c-mode #'setup-flycheck-rtags))
 
 
 (require 'go-guru)
@@ -180,3 +184,9 @@
 ;; (require 'py-autopep8)
 ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 (put 'narrow-to-region 'disabled nil)
+
+
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "RET") 'company-complete-selection)
+  (define-key company-active-map [return] 'company-complete-selection)
+  )
