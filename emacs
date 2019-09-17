@@ -108,6 +108,7 @@
     ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
  '(global-company-mode t)
  '(indent-tabs-mode t)
+ '(org-agenda-files (quote ("~/docs/agenda.org")))
  '(package-selected-packages
    (quote
     (wsd-mode plantuml-mode typescript-mode md-readme neato-graph-bar w3 docker-api docker-compose-mode magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
@@ -190,3 +191,22 @@
   (define-key company-active-map (kbd "RET") 'company-complete-selection)
   (define-key company-active-map [return] 'company-complete-selection)
   )
+
+
+
+(eval-after-load "ox-latex"
+
+  ;; update the list of LaTeX classes and associated header (encoding, etc.)
+  ;; and structure
+  '(add-to-list 'org-latex-classes
+		`("beamer"
+		  ,(concat "\\documentclass[presentation]{beamer}\n"
+			   "[DEFAULT-PACKAGES]"
+			   "[PACKAGES]"
+			   "[EXTRA]\n")
+		  ("\\section{%s}" . "\\section*{%s}")
+		  ("\\subsection{%s}" . "\\subsection*{%s}")
+		  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+
+(setq org-latex-listings t)
+    
