@@ -94,7 +94,7 @@
      (java-mode . "java")
      (awk-mode . "awk")
      (other . "gnu"))))
- '(cmake-ide-build-dir "/code/agent/build/debug")
+ '(cmake-ide-build-dir "/code/agent/build/debug-internal/")
  '(cmake-ide-cmake-opts
    "-DCMAKE_BUILD_TYPE=Debug -DBUILD_WARNINGS_AS_ERRORS=OFF -DDRAIOS_DEPENDENCIES_DIR=/code/agent/dependencies -DJAVA_HOME=/code/agent/dependencies/jdk1.7.0_75 -DAGENT_VERSION=0.1.1dev -DSTATSITE_VERSION=0.7.0-sysdig5 -DBUILD_DRIVER=ON -DBUILD_BPF=OFF -DPACKAGE_DEB_ONLY=OFF")
  '(cmake-ide-make-command "make --no-print-directory -j4 install")
@@ -109,9 +109,10 @@
  '(global-company-mode t)
  '(indent-tabs-mode t)
  '(org-agenda-files (quote ("~/docs/agenda.org")))
+ '(package-check-signature (quote allow-unsigned))
  '(package-selected-packages
    (quote
-    (wsd-mode plantuml-mode typescript-mode md-readme neato-graph-bar w3 docker-api docker-compose-mode magithub cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada company-rtags flycheck-rtags irony company auto-complete-clang-async yasnippet yaml-mode rtags magit ggtags flycheck docker company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (company-rtags flycheck-rtags rtags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(safe-local-variable-values (quote ((standard-indent . 4))))
  '(show-trailing-whitespace t)
  '(standard-indent 8))
@@ -209,4 +210,5 @@
 		  ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
 
 (setq org-latex-listings t)
-    
+
+
