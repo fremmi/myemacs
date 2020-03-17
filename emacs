@@ -77,9 +77,9 @@
   (move-to-column column t))
 
 
-(require 'rtags) ;; optional, must have rtags installed
+;; (require 'rtags) ;; optional, must have rtags installed
 (global-flycheck-mode)
-(cmake-ide-setup)
+;; (cmake-ide-setup)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -112,10 +112,13 @@
  '(package-check-signature (quote allow-unsigned))
  '(package-selected-packages
    (quote
-    (company-rtags flycheck-rtags rtags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (lsp-ui company-lsp ccls company-rtags flycheck-rtags rtags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(safe-local-variable-values (quote ((standard-indent . 4))))
  '(show-trailing-whitespace t)
- '(standard-indent 8))
+ '(standard-indent 8)
+ '(xref-prompt-for-identifier
+   (quote
+    (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -137,32 +140,32 @@
  
 
 ;; only run this if rtags is installed
-(when (require 'rtags nil :noerror)
-  ;; make sure you have company-mode installed
-  (require 'company)
-  (define-key c-mode-base-map (kbd "M-.")
-    (function rtags-find-symbol-at-point))
-  (define-key c-mode-base-map (kbd "M-,")
-    (function rtags-find-references-at-point))
-  ;; disable prelude's use of C-c r, as this is the rtags keyboard prefix
-  ;; (define-key prelude-mode-map (kbd "C-c r") nil)
-  ;; install standard rtags keybindings. Do M-. on the symbol below to
-  ;; jump to definition and see the keybindings.
-  (rtags-enable-standard-keybindings)
-  ;; comment this out if you don't have or don't use helm
-  ;; (setq rtags-use-helm t)
-  ;; company completion setup
-  (setq rtags-autostart-diagnostics t)
-  (rtags-diagnostics)
-  (setq rtags-completions-enabled t)
-  (push 'company-rtags company-backends)
-  (global-company-mode)
-  (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
-  ;; use rtags flycheck mode -- clang warnings shown inline
-  (require 'flycheck-rtags)
-  ;; c-mode-common-hook is also called by c++-mode
-  (add-hook 'c++-mode #'setup-flycheck-rtags)
-  (add-hook 'c-mode #'setup-flycheck-rtags))
+;; (when (require 'rtags nil :noerror)
+;;   ;; make sure you have company-mode installed
+;;   (require 'company)
+;;   (define-key c-mode-base-map (kbd "M-.")
+;;     (function rtags-find-symbol-at-point))
+;;   (define-key c-mode-base-map (kbd "M-,")
+;;     (function rtags-find-references-at-point))
+;;   ;; disable prelude's use of C-c r, as this is the rtags keyboard prefix
+;;   ;; (define-key prelude-mode-map (kbd "C-c r") nil)
+;;   ;; install standard rtags keybindings. Do M-. on the symbol below to
+;;   ;; jump to definition and see the keybindings.
+;;   (rtags-enable-standard-keybindings)
+;;   ;; comment this out if you don't have or don't use helm
+;;   ;; (setq rtags-use-helm t)
+;;   ;; company completion setup
+;;   (setq rtags-autostart-diagnostics t)
+;;   (rtags-diagnostics)
+;;   (setq rtags-completions-enabled t)
+;;   (push 'company-rtags company-backends)
+;;   (global-company-mode)
+;;   (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
+;;   ;; use rtags flycheck mode -- clang warnings shown inline
+;;   (require 'flycheck-rtags)
+;;   ;; c-mode-common-hook is also called by c++-mode
+;;   (add-hook 'c++-mode #'setup-flycheck-rtags)
+;;   (add-hook 'c-mode #'setup-flycheck-rtags))
 
 
 (require 'go-guru)
@@ -212,3 +215,22 @@
 (setq org-latex-listings t)
 
 
+;; (require 'eglot)
+;; (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+;; (add-hook 'c-mode-hook 'eglot-ensure)
+;; (add-hook 'c++-mode-hook 'eglot-ensure)
+
+
+(require 'ccls)
+(setq ccls-executable "/usr/bin/ccls")
+(require 'ccls)
+
+(use-package lsp-mode :commands lsp)
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package company-lsp :commands company-lsp)
+
+(use-package ccls
+	     :hook ((c-mode c++-mode objc-mode cuda-mode) .
+		             (lambda () (require 'ccls) (lsp))))
+
+(push 'company-lsp company-backends)
