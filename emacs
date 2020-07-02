@@ -79,6 +79,7 @@
      (java-mode . "java")
      (awk-mode . "awk")
      (other . "gnu"))))
+ '(cmake-tab-width 4)
  '(custom-safe-themes
    (quote
     ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
@@ -87,8 +88,9 @@
  '(package-check-signature (quote allow-unsigned))
  '(package-selected-packages
    (quote
-    (cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (chronos company-lsp ccls lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(safe-local-variable-values (quote ((standard-indent . 4))))
+ '(sh-basic-offset 8)
  '(show-trailing-whitespace t)
  '(standard-indent 8)
  '(xref-prompt-for-identifier
@@ -133,25 +135,40 @@
 ;;   (setq ggtags-oversize-limit (* 5 1024 1024 1024))
 ;;   )
 
-(use-package rtags
-  :ensure t
+;; (use-package rtags
+;;   :ensure t
+;;   :config
+;;   (cmake-ide-setup)
+;;   (setq cmake-ide-build-dir "/code/agent/build/release-internal/")
+;;   (require 'company)
+;;   (define-key c-mode-base-map (kbd "M-.")
+;;     (function rtags-find-symbol-at-point))
+;;   (define-key c-mode-base-map (kbd "M-,")
+;;     (function rtags-find-references-at-point))
+;;   (rtags-enable-standard-keybindings)
+;;   (setq rtags-autostart-diagnostics t)
+;;   (rtags-diagnostics)
+;;   (setq rtags-completions-enabled t)
+;;   (push 'company-rtags company-backends)
+;;   (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
+;;   (require 'flycheck-rtags)
+;;   (add-hook 'c++-mode #'setup-flycheck-rtags)
+;;   (add-hook 'c-mode #'setup-flycheck-rtags)
+;;   )
+
+(use-package lsp-mode
+  :commands lsp
   :config
-  (cmake-ide-setup)
-  (setq cmake-ide-build-dir "/code/agent/build/release-internal/")
-  (require 'company)
-  (define-key c-mode-base-map (kbd "M-.")
-    (function rtags-find-symbol-at-point))
-  (define-key c-mode-base-map (kbd "M-,")
-    (function rtags-find-references-at-point))
-  (rtags-enable-standard-keybindings)
-  (setq rtags-autostart-diagnostics t)
-  (rtags-diagnostics)
-  (setq rtags-completions-enabled t)
-  (push 'company-rtags company-backends)
-  (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
-  (require 'flycheck-rtags)
-  (add-hook 'c++-mode #'setup-flycheck-rtags)
-  (add-hook 'c-mode #'setup-flycheck-rtags)
+  (setq lsp-file-watch-threshold 300000))
+
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package company-lsp :commands company-lsp)
+
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+	 (lambda () (require 'ccls) (lsp)))
+  :config
+  (setq ccls-executable "/usr/local/src/ccls/Release/ccls")
   )
 
 
@@ -159,10 +176,9 @@
   (lambda()
     (global-set-key  (kbd "C-c o") 'ff-find-other-file)))
 
-
-(require 'go-guru)
-(add-hook 'go-mode-hook #'go-guru-hl-identifier-mode)
-(push 'company-go company-backends)
+;; (require 'go-guru)
+;; (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode)
+;; (push 'company-go company-backends)
 
 
 
