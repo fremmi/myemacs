@@ -84,11 +84,12 @@
    (quote
     ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
  '(indent-tabs-mode t)
+ '(large-file-warning-threshold 300000000)
  '(org-agenda-files (quote ("~/docs/agenda.org")))
  '(package-check-signature (quote allow-unsigned))
  '(package-selected-packages
    (quote
-    (chronos company-lsp ccls lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+    (flycheck-grammarly lsp-mode company-quickhelp chronos company-lsp ccls lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
  '(safe-local-variable-values (quote ((standard-indent . 4))))
  '(sh-basic-offset 8)
  '(show-trailing-whitespace t)
@@ -102,16 +103,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 3)
-  (add-hook 'c++-mode-hook 'company-mode)
-  (add-hook 'c-mode-hook 'company-mode)
-  (define-key company-active-map (kbd "RET") 'company-complete-selection)
-  (define-key company-active-map [return] 'company-complete-selection))
 
 ;; (use-package company-irony
 ;;   :ensure t
@@ -176,6 +167,21 @@
   (lambda()
     (global-set-key  (kbd "C-c o") 'ff-find-other-file)))
 
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 3)
+  (add-hook 'c++-mode-hook 'company-mode)
+  (add-hook 'c-mode-hook 'company-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (add-to-list 'company-backends 'company-lsp)
+  (define-key company-active-map (kbd "RET") 'company-complete-selection)
+  (define-key company-active-map [return] 'company-complete-selection))
+
+
+;; (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+
 ;; (require 'go-guru)
 ;; (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode)
 ;; (push 'company-go company-backends)
@@ -200,6 +206,6 @@
 ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 (put 'narrow-to-region 'disabled nil)
 
-
+(require 'flycheck-grammarly)
 
 
