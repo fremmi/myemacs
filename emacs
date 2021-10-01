@@ -30,6 +30,10 @@
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+
+;; Use local archives to downgrade packages
+;; (add-to-list 'package-archives '("local-dir" . "/home/fremmi/tmp/melpa/packages") t)
+
 (package-initialize)
 
 
@@ -89,10 +93,14 @@
  '(package-check-signature (quote allow-unsigned))
  '(package-selected-packages
    (quote
-    (flycheck-grammarly lsp-mode company-quickhelp chronos company-lsp ccls lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
- '(safe-local-variable-values (quote ((standard-indent . 4))))
+    (ag projectile egg-timer jq-mode jq-format lsp-mode ccls company-lsp clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
+ '(reb-re-syntax (quote string))
+ '(safe-local-variable-values
+   (quote
+    ((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
+     (cmake-ide-cmake-opts . "")
+     (standard-indent . 4))))
  '(sh-basic-offset 8)
- '(show-trailing-whitespace t)
  '(standard-indent 8)
  '(xref-prompt-for-identifier
    (quote
@@ -174,10 +182,12 @@
   (setq company-minimum-prefix-length 3)
   (add-hook 'c++-mode-hook 'company-mode)
   (add-hook 'c-mode-hook 'company-mode)
+  (add-hook 'c-mode-common-hook 'yas-minor-mode)
   (add-hook 'after-init-hook 'global-company-mode)
   (add-to-list 'company-backends 'company-lsp)
   (define-key company-active-map (kbd "RET") 'company-complete-selection)
   (define-key company-active-map [return] 'company-complete-selection))
+
 
 
 ;; (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
@@ -204,8 +214,39 @@
 ;; ;; enable autopep8 formatting on save
 ;; (require 'py-autopep8)
 ;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
+
+
+
+
 (put 'narrow-to-region 'disabled nil)
 
-(require 'flycheck-grammarly)
+(add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+(add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
+
+(require 'ansi-color)
+(defun ansi-color-region ()
+    "Color the ANSI escape sequences in the acitve region.
+Sequences start with an escape \033 (typically shown as \"^[\")
+and end with \"m\", e.g. this is two sequences
+  ^[[46;1mTEXT^[[0m
+where the first sequence says to diplay TEXT as bold with
+a cyan background and the second sequence turns it off.
+
+This strips the ANSI escape sequences and if the buffer is saved,
+the sequences will be lost."
+    (interactive)
+    (if (not (region-active-p))
+	(message "ansi-color-region: region is not active"))
+    (if buffer-read-only
+	;; read-only buffers may be pointing a read-only file system, so don't mark the buffer as
+	;; modified. If the buffer where to become modified, a warning will be generated when emacs
+	;; tries to autosave.
+	(let ((inhibit-read-only t)
+	      (modified (buffer-modified-p)))
+	  (ansi-color-apply-on-region (region-beginning) (region-end))
+	  (set-buffer-modified-p modified))
+          (ansi-color-apply-on-region (region-beginning) (region-end))))
+
+
 
 
