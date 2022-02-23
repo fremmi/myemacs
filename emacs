@@ -77,34 +77,29 @@
  ;; If there is more than one, they won't work right.
  '(c-basic-offset 8)
  '(c-default-style
-   (quote
-    ((c-mode . "ellemtel")
+   '((c-mode . "ellemtel")
      (c++-mode . "ellemtel")
      (java-mode . "java")
      (awk-mode . "awk")
-     (other . "gnu"))))
+     (other . "gnu")))
  '(cmake-tab-width 4)
  '(custom-safe-themes
-   (quote
-    ("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default)))
+   '("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default))
  '(indent-tabs-mode t)
  '(large-file-warning-threshold 300000000)
- '(org-agenda-files (quote ("~/docs/agenda.org")))
- '(package-check-signature (quote allow-unsigned))
+ '(org-agenda-files '("~/docs/agenda.org"))
+ '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   (quote
-    (ag projectile egg-timer jq-mode jq-format lsp-mode ccls company-lsp clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers)))
- '(reb-re-syntax (quote string))
+   '(log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode ccls company-lsp clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+ '(reb-re-syntax 'string)
  '(safe-local-variable-values
-   (quote
-    ((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
+   '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
      (cmake-ide-cmake-opts . "")
-     (standard-indent . 4))))
+     (standard-indent . 4)))
  '(sh-basic-offset 8)
  '(standard-indent 8)
  '(xref-prompt-for-identifier
-   (quote
-    (not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references))))
+   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
