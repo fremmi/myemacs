@@ -90,7 +90,7 @@
  '(org-agenda-files '("~/docs/agenda.org"))
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode ccls company-lsp clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode ccls clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -99,13 +99,15 @@
  '(sh-basic-offset 8)
  '(standard-indent 8)
  '(xref-prompt-for-identifier
-   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
+   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references))
+ '(xterm-mouse-mode t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(lsp-headerline-breadcrumb-path-face ((t (:foreground "red"))))
+ '(lsp-headerline-breadcrumb-symbols-face ((t (:foreground "color-18")))))
 
 ;; (use-package company-irony
 ;;   :ensure t
@@ -151,6 +153,7 @@
 ;;   )
 
 (use-package lsp-mode
+  :init (setq lsp-keymap-prefix "C-c l")
   :commands lsp
   :config
   (setq lsp-file-watch-threshold 300000))
@@ -241,6 +244,34 @@ the sequences will be lost."
 	  (ansi-color-apply-on-region (region-beginning) (region-end))
 	  (set-buffer-modified-p modified))
           (ansi-color-apply-on-region (region-beginning) (region-end))))
+
+
+
+
+;;;;GO
+
+(setenv "GOPATH" "/home/fremmi/go")
+
+(require 'lsp-mode)
+(add-hook 'go-mode-hook #'lsp-deferred)
+
+(defun my-go-mode-hook ()
+  ; Call Gofmt before saving
+  ; Customize compile command to run go build
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+	   "go build -v && go test -v && go vet"))
+  )
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+
+
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+(add-hook 'go-mode-hook 'yas-minor-mode)
 
 
 
