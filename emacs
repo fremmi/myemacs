@@ -159,7 +159,7 @@
   (setq lsp-file-watch-threshold 300000))
 
 (use-package lsp-ui :commands lsp-ui-mode)
-(use-package company-lsp :commands company-lsp)
+;;(use-package company-lsp :commands company-lsp)
 
 (use-package ccls
   :hook ((c-mode c++-mode objc-mode cuda-mode) .
@@ -182,7 +182,7 @@
   (add-hook 'c-mode-hook 'company-mode)
   (add-hook 'c-mode-common-hook 'yas-minor-mode)
   (add-hook 'after-init-hook 'global-company-mode)
-  (add-to-list 'company-backends 'company-lsp)
+  ;; (add-to-list 'company-backends 'company-lsp)
   (define-key company-active-map (kbd "RET") 'company-complete-selection)
   (define-key company-active-map [return] 'company-complete-selection))
 
