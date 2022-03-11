@@ -90,7 +90,7 @@
  '(org-agenda-files '("~/docs/agenda.org"))
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode ccls clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -109,64 +109,16 @@
  '(lsp-headerline-breadcrumb-path-face ((t (:foreground "red"))))
  '(lsp-headerline-breadcrumb-symbols-face ((t (:foreground "color-18")))))
 
-;; (use-package company-irony
-;;   :ensure t
-;;   :config
-;;   (require 'company)
-;;   (add-to-list 'company-backends 'company-irony))
-
-;; (use-package irony
-;;   :ensure t
-;;   :config
-;;   (add-hook 'c++-mode-hook 'irony-mode)
-;;   (add-hook 'c-mode-hook 'irony-mode)
-;;   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
-
-;; (use-package ggtags
-;;   :ensure t
-;;   :config
-;;   (add-hook 'c++-mode-hook 'ggtags-mode)
-;;   (add-hook 'c-mode-hook 'ggtags-mode)
-;;   (setq ggtags-extra-args (quote ("--skip-unreadable")))
-;;   (setq ggtags-oversize-limit (* 5 1024 1024 1024))
-;;   )
-
-;; (use-package rtags
-;;   :ensure t
-;;   :config
-;;   (cmake-ide-setup)
-;;   (setq cmake-ide-build-dir "/code/agent/build/release-internal/")
-;;   (require 'company)
-;;   (define-key c-mode-base-map (kbd "M-.")
-;;     (function rtags-find-symbol-at-point))
-;;   (define-key c-mode-base-map (kbd "M-,")
-;;     (function rtags-find-references-at-point))
-;;   (rtags-enable-standard-keybindings)
-;;   (setq rtags-autostart-diagnostics t)
-;;   (rtags-diagnostics)
-;;   (setq rtags-completions-enabled t)
-;;   (push 'company-rtags company-backends)
-;;   (define-key c-mode-base-map (kbd "C-\t") (function company-complete))
-;;   (require 'flycheck-rtags)
-;;   (add-hook 'c++-mode #'setup-flycheck-rtags)
-;;   (add-hook 'c-mode #'setup-flycheck-rtags)
-;;   )
 
 (use-package lsp-mode
   :init (setq lsp-keymap-prefix "C-c l")
   :commands lsp
   :config
-  (setq lsp-file-watch-threshold 300000))
+  (setq lsp-file-watch-threshold 300000)
+  :hook ((c-mode c++-mode) . lsp)
+  )
 
 (use-package lsp-ui :commands lsp-ui-mode)
-;;(use-package company-lsp :commands company-lsp)
-
-(use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-	 (lambda () (require 'ccls) (lsp)))
-  :config
-  (setq ccls-executable "/usr/local/src/ccls/Release/ccls")
-  )
 
 
 (add-hook 'c-mode-common-hook
@@ -182,37 +134,38 @@
   (add-hook 'c-mode-hook 'company-mode)
   (add-hook 'c-mode-common-hook 'yas-minor-mode)
   (add-hook 'after-init-hook 'global-company-mode)
-  ;; (add-to-list 'company-backends 'company-lsp)
   (define-key company-active-map (kbd "RET") 'company-complete-selection)
   (define-key company-active-map [return] 'company-complete-selection))
 
 
 
-;; (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+;;;;;;;;GO
 
-;; (require 'go-guru)
-;; (add-hook 'go-mode-hook #'go-guru-hl-identifier-mode)
-;; (push 'company-go company-backends)
+(setenv "GOPATH" "/home/fremmi/go")
+
+(require 'lsp-mode)
+(add-hook 'go-mode-hook #'lsp-deferred)
+
+(defun my-go-mode-hook ()
+  ; Call Gofmt before saving
+  ; Customize compile command to run go build
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+	   "go build -v && go test -v && go vet"))
+  )
+(add-hook 'go-mode-hook 'my-go-mode-hook)
 
 
+;; Set up before-save hooks to format buffer and add/delete imports.
+;; Make sure you don't have other gofmt/goimports hooks enabled.
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+(add-hook 'go-mode-hook 'yas-minor-mode)
 
 
-;; PYTHON CONFIGURATION
-;; --------------------------------------
-
-(elpy-enable)
-(setq python-shell-interpreter "ipython"
-            python-shell-interpreter-args "-i --simple-prompt")
-
-;; use flycheck not flymake with elpy
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
-
-;; ;; enable autopep8 formatting on save
-;; (require 'py-autopep8)
-;; (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
-
+;;;;;;;MISCELLANEOUS
 
 
 
@@ -248,30 +201,6 @@ the sequences will be lost."
 
 
 
-;;;;GO
-
-(setenv "GOPATH" "/home/fremmi/go")
-
-(require 'lsp-mode)
-(add-hook 'go-mode-hook #'lsp-deferred)
-
-(defun my-go-mode-hook ()
-  ; Call Gofmt before saving
-  ; Customize compile command to run go build
-  (if (not (string-match "go" compile-command))
-      (set (make-local-variable 'compile-command)
-	   "go build -v && go test -v && go vet"))
-  )
-(add-hook 'go-mode-hook 'my-go-mode-hook)
-
-
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-(add-hook 'go-mode-hook 'yas-minor-mode)
 
 
 
