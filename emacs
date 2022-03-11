@@ -110,65 +110,6 @@
  '(lsp-headerline-breadcrumb-symbols-face ((t (:foreground "color-18")))))
 
 
-(use-package lsp-mode
-  :init (setq lsp-keymap-prefix "C-c l")
-  :commands lsp
-  :config
-  (setq lsp-file-watch-threshold 300000)
-  :hook ((c-mode c++-mode) . lsp)
-  )
-
-(use-package lsp-ui :commands lsp-ui-mode)
-
-
-(add-hook 'c-mode-common-hook
-  (lambda()
-    (global-set-key  (kbd "C-c o") 'ff-find-other-file)))
-
-(use-package company
-  :ensure t
-  :config
-  (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 3)
-  (add-hook 'c++-mode-hook 'company-mode)
-  (add-hook 'c-mode-hook 'company-mode)
-  (add-hook 'c-mode-common-hook 'yas-minor-mode)
-  (add-hook 'after-init-hook 'global-company-mode)
-  (define-key company-active-map (kbd "RET") 'company-complete-selection)
-  (define-key company-active-map [return] 'company-complete-selection))
-
-
-
-;;;;;;;;GO
-
-(setenv "GOPATH" "/home/fremmi/go")
-
-(require 'lsp-mode)
-(add-hook 'go-mode-hook #'lsp-deferred)
-
-(defun my-go-mode-hook ()
-  ; Call Gofmt before saving
-  ; Customize compile command to run go build
-  (if (not (string-match "go" compile-command))
-      (set (make-local-variable 'compile-command)
-	   "go build -v && go test -v && go vet"))
-  )
-(add-hook 'go-mode-hook 'my-go-mode-hook)
-
-
-;; Set up before-save hooks to format buffer and add/delete imports.
-;; Make sure you don't have other gofmt/goimports hooks enabled.
-(defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
-(add-hook 'go-mode-hook 'yas-minor-mode)
-
-
-;;;;;;;MISCELLANEOUS
-
-
-
 (put 'narrow-to-region 'disabled nil)
 
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
@@ -197,6 +138,60 @@ the sequences will be lost."
 	  (ansi-color-apply-on-region (region-beginning) (region-end))
 	  (set-buffer-modified-p modified))
           (ansi-color-apply-on-region (region-beginning) (region-end))))
+
+
+;; C++ and GO  configuration;;
+
+(defun my-go-mode-hook ()
+  ; Call Gofmt before saving
+  ; Customize compile command to run go build
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+	   "go build -v && go test -v && go vet"))
+  )
+
+(defun lsp-go-install-save-hooks ()
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  (setenv "GOPATH" "/home/fremmi/go")
+  :config
+  (setq lsp-file-watch-threshold 300000)
+  :hook
+  ((c-mode c++-mode) . lsp)
+  (go-mode . lsp-deferred)
+  (go-mode . my-go-mode-hook)
+  (go-mode . yas-minor-mode)
+  (go-mode . lsp-go-install-save-hooks)
+  )
+
+(use-package lsp-ui :commands lsp-ui-mode)
+
+
+(add-hook 'c-mode-common-hook
+  (lambda()
+    (global-set-key  (kbd "C-c o") 'ff-find-other-file)))
+
+(use-package company
+  :ensure t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 3)
+  (add-hook 'c++-mode-hook 'company-mode)
+  (add-hook 'c-mode-hook 'company-mode)
+  (add-hook 'c-mode-common-hook 'yas-minor-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+  (define-key company-active-map (kbd "RET") 'company-complete-selection)
+  (define-key company-active-map [return] 'company-complete-selection))
+
+
+
+
+
+
 
 
 
