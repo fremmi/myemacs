@@ -140,6 +140,15 @@ the sequences will be lost."
           (ansi-color-apply-on-region (region-beginning) (region-end))))
 
 
+;;;; This turn on ansi color on compilation buffer
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  (toggle-read-only)
+  (ansi-color-apply-on-region compilation-filter-start (point))
+  (toggle-read-only))
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+;;;;;;
+
 ;; C++ and GO  configuration;;
 
 (defun my-go-mode-hook ()
