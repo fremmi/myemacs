@@ -82,15 +82,17 @@
      (java-mode . "java")
      (awk-mode . "awk")
      (other . "gnu")))
+ '(c-offsets-alist '((innamespace . +)))
  '(cmake-tab-width 4)
  '(custom-safe-themes
    '("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default))
  '(indent-tabs-mode t)
  '(large-file-warning-threshold 300000000)
+ '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
  '(org-agenda-files '("~/docs/agenda.org"))
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag projectile egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos lsp-ui cpp-capf cpputils-cmake json-navigator company-ctags forge magithub gh docker docker-cli docker-tramp dockerfile-mode tramp magit-gh-pulls gnu-elpa-keyring-update json-mode restclient magit helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode cql-mode protobuf-mode elpy go-guru company-go go-mode kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -175,6 +177,7 @@ the sequences will be lost."
   (go-mode . my-go-mode-hook)
   (go-mode . yas-minor-mode)
   (go-mode . lsp-go-install-save-hooks)
+  (python-mode . lsp)
   )
 
 (use-package lsp-ui :commands lsp-ui-mode)
@@ -197,9 +200,23 @@ the sequences will be lost."
   (define-key company-active-map [return] 'company-complete-selection))
 
 
+(use-package lsp-java
+  :ensure t
+  :config (add-hook 'java-mode-hook 'lsp))
 
+;; (use-package clang-format
+;;   :ensure t
+;;   :hook ((c++-mode . clang-format-mode)
+;; 	 (before-save . clang-format-buffer))
+;;   :config
+;;   (setq clang-format-style "file"))
 
+(defun my-clang-format-on-save ()
+  "Run clang-format before saving the file."
+  (when (eq major-mode 'c++-mode) ; Customize for specific major modes if needed
+    (clang-format-buffer)))
 
+(add-hook 'before-save-hook #'my-clang-format-on-save)
 
 
 
