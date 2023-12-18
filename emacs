@@ -92,7 +92,7 @@
  '(org-agenda-files '("~/docs/agenda.org"))
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -100,6 +100,7 @@
      (standard-indent . 4)))
  '(sh-basic-offset 8)
  '(standard-indent 8)
+ '(warning-minimum-level :error)
  '(xref-prompt-for-identifier
    '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references))
  '(xterm-mouse-mode t))
@@ -145,9 +146,7 @@ the sequences will be lost."
 ;;;; This turn on ansi color on compilation buffer
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
-  (toggle-read-only)
-  (ansi-color-apply-on-region compilation-filter-start (point))
-  (toggle-read-only))
+   (ansi-color-apply-on-region compilation-filter-start (point)))
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 ;;;;;;
 
@@ -219,10 +218,14 @@ the sequences will be lost."
 (add-hook 'before-save-hook #'my-clang-format-on-save)
 
 
+(add-to-list 'load-path "/home/fremmi/myemacs/copilot.el")
+(require 'copilot)
+
+(add-hook 'prog-mode-hook 'copilot-mode)
+(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
 
-
-
-
-
+(provide '.emacs)
+;;; .emacs ends here
 
