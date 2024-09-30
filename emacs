@@ -84,6 +84,7 @@
      (other . "gnu")))
  '(c-offsets-alist '((innamespace . +)))
  '(cmake-tab-width 4)
+ '(custom-enabled-themes nil)
  '(custom-safe-themes
    '("0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default))
  '(indent-tabs-mode t)
@@ -92,7 +93,7 @@
  '(org-agenda-files '("~/docs/agenda.org"))
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -226,6 +227,23 @@ the sequences will be lost."
 (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
 
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
+
+(defun create-file-link ()
+  "Create a link with the format file://filename:line-number."
+  (interactive)
+  (when buffer-file-name
+    (let* ((line-number (line-number-at-pos))
+           (link (format "file://%s:%d" buffer-file-name line-number)))
+      (kill-new link)
+      (message "Link copied to kill ring: %s" link))))
+
+
 (provide '.emacs)
 ;;; .emacs ends here
+
 
