@@ -90,10 +90,10 @@
  '(indent-tabs-mode t)
  '(large-file-warning-threshold 300000000)
  '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
- '(org-agenda-files '("~/docs/agenda.org"))
+ '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
@@ -199,7 +199,6 @@ the sequences will be lost."
   (define-key company-active-map (kbd "RET") 'company-complete-selection)
   (define-key company-active-map [return] 'company-complete-selection))
 
-
 (use-package lsp-java
   :ensure t
   :config (add-hook 'java-mode-hook 'lsp))
@@ -225,12 +224,6 @@ the sequences will be lost."
 (add-hook 'prog-mode-hook 'copilot-mode)
 (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
 (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-
-
-(use-package markdown-mode
-  :ensure t
-  :mode ("README\\.md\\'" . gfm-mode)
-  :init (setq markdown-command "multimarkdown"))
 
 
 (defun create-file-link ()
