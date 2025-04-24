@@ -32,7 +32,7 @@
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
 ;; Use local archives to downgrade packages
-;; (add-to-list 'package-archives '("local-dir" . "/home/fremmi/tmp/melpa/packages") t)
+;; (add-to-list 'package-archives '("local-dir" . "/home/francesco.emmi/tmp/melpa/packages") t)
 
 (package-initialize)
 
@@ -93,10 +93,10 @@
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
-   '((cmake-ide-build-dir . "/home/fremmi/sources/c++-playgraund/thread/build/")
+   '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
      (cmake-ide-cmake-opts . "")
      (standard-indent . 4)))
  '(sh-basic-offset 8)
@@ -168,7 +168,7 @@ the sequences will be lost."
 (use-package lsp-mode
   :init
   (setq lsp-keymap-prefix "C-c l")
-  (setenv "GOPATH" "/home/fremmi/go")
+  (setenv "GOPATH" "/home/francesco.emmi/go")
   :config
   (setq lsp-file-watch-threshold 300000)
   :hook
@@ -218,7 +218,7 @@ the sequences will be lost."
 (add-hook 'before-save-hook #'my-clang-format-on-save)
 
 
-(add-to-list 'load-path "/home/fremmi/myemacs/copilot.el")
+(add-to-list 'load-path "/home/francesco.emmi/myemacs/copilot.el")
 (require 'copilot)
 
 (add-hook 'prog-mode-hook 'copilot-mode)
@@ -236,7 +236,14 @@ the sequences will be lost."
       (message "Link copied to kill ring: %s" link))))
 
 
+(keymap-global-set "C-c k" 'kubed-prefix-map)
+
 (provide '.emacs)
 ;;; .emacs ends here
 
 
+(add-hook 'java-mode-hook
+          (lambda ()
+            (setq c-basic-offset 4)
+            (setq tab-width 4)
+            (setq indent-tabs-mode nil)))
