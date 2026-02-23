@@ -1,7 +1,7 @@
 ;;; Code:
 (setq password-cache-expiry nil)
 
-(require 'ido) (ido-mode t)
+;; (require 'ido) (ido-mode t)
 
 (global-set-key (kbd "C-c <left>")  'windmove-left)
 (global-set-key (kbd "C-c <right>") 'windmove-right)
@@ -93,7 +93,7 @@
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
@@ -247,3 +247,42 @@ the sequences will be lost."
             (setq c-basic-offset 4)
             (setq tab-width 4)
             (setq indent-tabs-mode nil)))
+
+
+;; Enable protobuf-mode for .proto files
+(use-package protobuf-mode
+  :mode "\\.proto\\'"
+  :config
+  (setq protobuf-style "google"))
+
+;; LSP mode for general language server support
+(use-package lsp-mode
+  :hook (protobuf-mode . lsp)
+  :commands lsp
+  :config
+  (setq lsp-clients-protobuf-server-command '("bufls")))
+
+
+
+(use-package vertico
+  :init (vertico-mode))
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-overrides
+        '((file (styles basic partial-completion)))))
+
+(use-package marginalia
+  :init (marginalia-mode))
+
+
+(use-package projectile
+  :init
+  (projectile-mode +1)
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+
+(use-package consult-projectile
+  :after (consult projectile))
