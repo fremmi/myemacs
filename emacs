@@ -111,7 +111,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(lsp-headerline-breadcrumb-path-face ((t (:foreground "red"))))
- '(lsp-headerline-breadcrumb-symbols-face ((t (:foreground "color-18")))))
+ '(lsp-headerline-breadcrumb-symbols-face ((t (:foreground "#0087af")))))
 
 
 (put 'narrow-to-region 'disabled nil)
@@ -174,8 +174,10 @@ the sequences will be lost."
   :hook
   ((c-mode c++-mode) . lsp)
   (go-mode . lsp-deferred)
+  (rust-mode . lsp-deferred)
   (go-mode . my-go-mode-hook)
   (go-mode . yas-minor-mode)
+  (rust-mode . yas-minor-mode)
   (go-mode . lsp-go-install-save-hooks)
   (python-mode . lsp)
   )
