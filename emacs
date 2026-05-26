@@ -93,7 +93,7 @@
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
@@ -169,8 +169,10 @@ the sequences will be lost."
   :init
   (setq lsp-keymap-prefix "C-c l")
   (setenv "GOPATH" "/home/francesco.emmi/go")
+  :commands lsp
   :config
   (setq lsp-file-watch-threshold 300000)
+  (setq lsp-clients-protobuf-server-command '("bufls"))
   :hook
   ((c-mode c++-mode) . lsp)
   (go-mode . lsp-deferred)
@@ -180,7 +182,7 @@ the sequences will be lost."
   (rust-mode . yas-minor-mode)
   (go-mode . lsp-go-install-save-hooks)
   (python-mode . lsp)
-  )
+  (protobuf-mode . lsp))
 
 (use-package lsp-ui :commands lsp-ui-mode)
 
@@ -220,14 +222,6 @@ the sequences will be lost."
 (add-hook 'before-save-hook #'my-clang-format-on-save)
 
 
-(add-to-list 'load-path "/home/francesco.emmi/myemacs/copilot.el")
-(require 'copilot)
-
-(add-hook 'prog-mode-hook 'copilot-mode)
-(define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-(define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-
-
 (defun create-file-link ()
   "Create a link with the format file://filename:line-number."
   (interactive)
@@ -256,15 +250,6 @@ the sequences will be lost."
   :mode "\\.proto\\'"
   :config
   (setq protobuf-style "google"))
-
-;; LSP mode for general language server support
-(use-package lsp-mode
-  :hook (protobuf-mode . lsp)
-  :commands lsp
-  :config
-  (setq lsp-clients-protobuf-server-command '("bufls")))
-
-
 
 (use-package vertico
   :init (vertico-mode))
@@ -304,7 +289,6 @@ the sequences will be lost."
 
 ;; Replace standard search with "Live" fuzzy search
 (global-set-key (kbd "C-s") 'consult-line)          ;; Search current file
-(global-set-key (kbd "M-s r") 'consult-ripgrep)    ;; Search project (like Telescope live_grep)
 (global-set-key (kbd "C-x b") 'consult-buffer)     ;; Enhanced buffer switcher
 
 (use-package tree-sitter-langs :ensure t)
@@ -350,14 +334,6 @@ the sequences will be lost."
   (global-set-key (kbd "M-s s") #'consult-lsp-symbols)      ;; M-s s: Search symbols in project
   (global-set-key (kbd "M-s e") #'consult-lsp-diagnostics)) ;; M-s e: Search errors/warnings
 
-;; 3. Dired Preview (The "Live Peek" feature you asked for)
-(use-package dired-preview
-  :ensure t
-  :config
-  (dired-preview-global-mode 1)
-  (setq dired-preview-delay 0.1))
-
-
 ;; Force-reset the jump command to stop the "Wrong type argument" error
 (with-eval-after-load 'lsp-mode
   (define-key lsp-mode-map [remap xref-find-definitions] nil))
@@ -372,6 +348,59 @@ the sequences will be lost."
   ;; This is the line you are missing:
   (require 'dap-cpptools)  ; Provides the bridge for Rust/C++/C
   
-  ;; This command automatically downloads the VS Code extension 
+  ;; This command automatically downloads the VS Code extension
   ;; that Rust-Analyzer uses behind the scenes for debugging.
   (dap-cpptools-setup))
+
+
+;; --- Treemacs (nvim-tree analogue) ---
+(use-package treemacs
+  :ensure t
+  :defer t
+  :bind (("C-c t" . treemacs)
+         ("C-c 0" . treemacs-select-window))
+  :config
+  (setq treemacs-width 30
+        treemacs-follow-after-init t
+        treemacs-is-never-most-recent-window t
+        treemacs-project-follow-cleanup t
+        treemacs-show-hidden-files nil)
+  (treemacs-follow-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode 'always)
+  (treemacs-git-mode 'deferred))
+
+(use-package treemacs-projectile
+  :ensure t
+  :after (treemacs projectile))
+
+(use-package treemacs-magit
+  :ensure t
+  :after (treemacs magit))
+
+
+;; --- which-key (prefix discoverability) ---
+(use-package which-key
+  :ensure t
+  :init (which-key-mode)
+  :config (setq which-key-idle-delay 0.4))
+
+
+;; --- consult-lsp (used by M-s s / M-s e and the C-c f hub) ---
+(use-package consult-lsp
+  :ensure t
+  :after (consult lsp-mode))
+
+
+;; --- Telescope-style "find" hub on C-c f ---
+;; Mirrors nvim Telescope mnemonics: ff/fg/fb/fr/fs/fd/fp.
+(define-prefix-command 'my-find-map)
+(global-set-key (kbd "C-c f") 'my-find-map)
+(define-key my-find-map (kbd "f") #'consult-projectile-find-file)
+(define-key my-find-map (kbd "g") #'consult-ripgrep)
+(define-key my-find-map (kbd "b") #'consult-projectile)
+(define-key my-find-map (kbd "r") #'consult-recent-file)
+(define-key my-find-map (kbd "p") #'projectile-switch-project)
+(with-eval-after-load 'consult-lsp
+  (define-key my-find-map (kbd "s") #'consult-lsp-symbols)
+  (define-key my-find-map (kbd "d") #'consult-lsp-diagnostics))
