@@ -93,7 +93,7 @@
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(envrc treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
@@ -103,8 +103,7 @@
  '(standard-indent 8)
  '(warning-minimum-level :error)
  '(xref-prompt-for-identifier
-   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references))
- '(xterm-mouse-mode t))
+   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -404,3 +403,8 @@ the sequences will be lost."
 (with-eval-after-load 'consult-lsp
   (define-key my-find-map (kbd "s") #'consult-lsp-symbols)
   (define-key my-find-map (kbd "d") #'consult-lsp-diagnostics))
+
+
+(use-package envrc
+  :ensure t
+  :hook (after-init . envrc-global-mode))
