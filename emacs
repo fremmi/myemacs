@@ -337,6 +337,13 @@ the sequences will be lost."
 (with-eval-after-load 'lsp-mode
   (define-key lsp-mode-map [remap xref-find-definitions] nil))
 
+;; 3. Show LSP navigation results in the consult/vertico fzf-style picker
+;; (with live preview), the same UI as C-c f g. lsp-find-definition,
+;; -references, -implementation, -type-definition all route through these.
+(with-eval-after-load 'consult
+  (setq xref-show-xrefs-function       #'consult-xref
+        xref-show-definitions-function #'consult-xref))
+
 (use-package dap-mode
   :ensure t
   :config
