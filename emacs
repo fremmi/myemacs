@@ -363,7 +363,8 @@ the sequences will be lost."
         treemacs-follow-after-init t
         treemacs-is-never-most-recent-window t
         treemacs-project-follow-cleanup t
-        treemacs-show-hidden-files nil)
+        treemacs-show-hidden-files nil
+        treemacs-display-in-side-window t)
   (treemacs-follow-mode t)
   (treemacs-filewatch-mode t)
   (treemacs-fringe-indicator-mode 'always)
@@ -376,6 +377,24 @@ the sequences will be lost."
 (use-package treemacs-magit
   :ensure t
   :after (treemacs magit))
+
+;; Open files without splitting: always reuse the existing non-treemacs window
+(with-eval-after-load 'treemacs
+  (dolist (node '(file-node-open file-node-closed tag-node-open tag-node-closed tag-node))
+    (setf (alist-get node treemacs-RET-actions-config)
+          #'treemacs-visit-node-no-split)))
+
+;; Source files always reuse the single main window (+ the treemacs side
+;; window) instead of splitting -- e.g. picking a `consult-ripgrep' result no
+;; longer carves out a new tiny window. This rule matches only file-visiting
+;; buffers, so help/magit/compilation/lsp popups are unaffected and keep their
+;; normal splitting behavior.
+(add-to-list 'display-buffer-alist
+             `(,(lambda (buf _act)
+                  (buffer-local-value 'buffer-file-name (get-buffer buf)))
+               (display-buffer-reuse-window
+                display-buffer-use-some-window)
+               (inhibit-same-window . nil)))
 
 
 ;; --- which-key (prefix discoverability) ---
