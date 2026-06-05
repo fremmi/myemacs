@@ -93,7 +93,7 @@
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(nerd-icons-completion doom-modeline claude-code envrc treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(zoxide nerd-icons-completion doom-modeline claude-code envrc treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
@@ -400,6 +400,11 @@ the sequences will be lost."
   :ensure t
   :after (treemacs magit))
 
+(use-package magit
+  :ensure t
+  :config
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
 ;; Open files without splitting: always reuse the existing non-treemacs window
 (with-eval-after-load 'treemacs
   (dolist (node '(file-node-open file-node-closed tag-node-open tag-node-closed tag-node))
@@ -449,3 +454,28 @@ the sequences will be lost."
 (use-package envrc
   :ensure t
   :hook (after-init . envrc-global-mode))
+
+
+;; --- claude-code (Claude Code CLI integration) ---
+;; Dev branch (v0.4.5+), installed via:
+;;   M-x package-vc-install RET https://github.com/stevemolitor/claude-code.el
+;; Requires Emacs 30 and the `eat' terminal backend (pure elisp, no native
+;; module). Runs Claude Code CLI sessions in eat buffers, scoped per project.
+
+;; eat: terminal backend used by claude-code (NonGNU ELPA).
+(use-package eat
+  :ensure t)
+
+(use-package claude-code
+  ;; NOT :ensure t -- installed from git via package-vc-install, not an archive.
+  :after eat
+  :config
+  ;; Path to the Claude CLI (renamed from `claude-code-executable' in the rewrite).
+  (setq claude-code-program "/home/francesco.emmi/.local/bin/claude")
+  ;; Match the shell alias's flags if you want them in Emacs too:
+  ;; (setq claude-code-program-switches '("--settings" "/home/francesco.emmi/.claude/spinner-verbs.json"))
+  (claude-code-mode)              ; global mode (mode-line + buffer tracking)
+  :bind-keymap
+  ("C-c c" . claude-code-command-map)   ; prefix: C-c c x = send command WITH CONTEXT
+  :bind
+  ("C-c a" . claude-code-transient))    ; transient menu
