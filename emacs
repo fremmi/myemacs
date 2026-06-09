@@ -77,33 +77,58 @@
  ;; If there is more than one, they won't work right.
  '(c-basic-offset 8)
  '(c-default-style
-   '((c-mode . "ellemtel")
-     (c++-mode . "ellemtel")
-     (java-mode . "java")
-     (awk-mode . "awk")
-     (other . "gnu")))
+   '((c-mode . "ellemtel") (c++-mode . "ellemtel") (java-mode . "java")
+     (awk-mode . "awk") (other . "gnu")))
  '(c-offsets-alist '((innamespace . +)))
  '(cmake-tab-width 4)
  '(custom-enabled-themes '(doom-one))
  '(custom-safe-themes
-   '("dd4582661a1c6b865a33b89312c97a13a3885dc95992e2e5fc57456b4c545176" "aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8" "9e5e0ff3a81344c9b1e6bfc9b3dcf9b96d5ec6a60d8de6d4c762ee9e2121dfb2" "d481904809c509641a1a1f1b1eb80b94c58c210145effc2631c1a7f2e4a2fdf4" "3613617b9953c22fe46ef2b593a2e5bc79ef3cc88770602e7e569bbd71de113b" "720838034f1dd3b3da66f6bd4d053ee67c93a747b219d1c546c41c4e425daf93" "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1" "f1e8339b04aef8f145dd4782d03499d9d716fdc0361319411ac2efc603249326" "0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5" default))
+   '("dd4582661a1c6b865a33b89312c97a13a3885dc95992e2e5fc57456b4c545176"
+     "aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8"
+     "9e5e0ff3a81344c9b1e6bfc9b3dcf9b96d5ec6a60d8de6d4c762ee9e2121dfb2"
+     "d481904809c509641a1a1f1b1eb80b94c58c210145effc2631c1a7f2e4a2fdf4"
+     "3613617b9953c22fe46ef2b593a2e5bc79ef3cc88770602e7e569bbd71de113b"
+     "720838034f1dd3b3da66f6bd4d053ee67c93a747b219d1c546c41c4e425daf93"
+     "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1"
+     "f1e8339b04aef8f145dd4782d03499d9d716fdc0361319411ac2efc603249326"
+     "0c32e4f0789f567a560be625f239ee9ec651e524e46a4708eb4aba3b9cdc89c5"
+     default))
  '(indent-tabs-mode t)
  '(large-file-warning-threshold 300000000)
  '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
-   '(zoxide nerd-icons-completion doom-modeline claude-code envrc treemacs treemacs-projectile treemacs-magit which-key consult-lsp rust-mode consult-projectile dired-preview all-the-icons-completion fzf agent-shell consult chatgpt-shell kubernetes-helm kubed markdown-toc tree-sitter tree-sitter-langs auto-org-md go-mode yasnippet helm biomejs-format markdown-mode graphviz-dot-mode cmake-mode editorconfig melpa-upstream-visit yaml-mode go-dlv restclient simpleclip magit lsp-ui lsp-java protobuf-mode gh gh-md gh-notify neotree dash go-autocomplete log4j-mode logview ag egg-timer jq-mode jq-format lsp-mode clang-format company-quickhelp chronos cpp-capf cpputils-cmake json-navigator company-ctags forge magithub docker docker-cli docker-tramp dockerfile-mode magit-gh-pulls gnu-elpa-keyring-update json-mode helm-fuzzy-find md-readme neato-graph-bar w3 docker-api docker-compose-mode elpy go-guru kubernetes-tramp es-mode kubernetes smart-compile sr-speedbar meghanada irony company auto-complete-clang-async ggtags flycheck company-irony cmake-ide auto-complete-clang auto-complete-c-headers))
+   '(ag agent-shell all-the-icons-completion auto-complete-c-headers
+	auto-complete-clang auto-complete-clang-async auto-org-md
+	biomejs-format chatgpt-shell chronos clang-format claude-code
+	cmake-ide cmake-mode company company-ctags company-irony
+	company-quickhelp consult consult-lsp consult-projectile
+	cpp-capf cpputils-cmake dash dired-preview docker docker-api
+	docker-cli docker-compose-mode docker-tramp dockerfile-mode
+	doom-modeline editorconfig egg-timer elpy envrc es-mode
+	flycheck forge fzf ggtags gh gh-md gh-notify
+	gnu-elpa-keyring-update go-autocomplete go-dlv go-guru go-mode
+	graphviz-dot-mode helm helm-fuzzy-find irony jq-format jq-mode
+	json-mode json-navigator kubed kubernetes kubernetes-helm
+	kubernetes-tramp log4j-mode logview lsp-java lsp-mode lsp-ui
+	magit magit-gh-pulls magithub markdown-mode markdown-toc
+	md-readme meghanada melpa-upstream-visit neato-graph-bar
+	neotree nerd-icons-completion protobuf-mode restclient
+	rust-mode simpleclip smart-compile sr-speedbar transpose-frame
+	tree-sitter tree-sitter-langs treemacs treemacs-magit
+	treemacs-projectile w3 which-key yaml-mode yasnippet zoxide))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
-   '((cmake-ide-build-dir . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
-     (cmake-ide-cmake-opts . "")
-     (standard-indent . 4)))
+   '((cmake-ide-build-dir
+      . "/home/francesco.emmi/sources/c++-playgraund/thread/build/")
+     (cmake-ide-cmake-opts . "") (standard-indent . 4)))
  '(sh-basic-offset 8)
  '(standard-indent 8)
  '(warning-minimum-level :error)
  '(xref-prompt-for-identifier
-   '(not xref-find-definitions xref-find-definitions-other-window xref-find-definitions-other-frame xref-find-references)))
+   '(not xref-find-definitions xref-find-definitions-other-window
+	 xref-find-definitions-other-frame xref-find-references)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -233,6 +258,43 @@ the sequences will be lost."
 
 (keymap-global-set "C-c k" 'kubed-prefix-map)
 
+(use-package hydra :ensure t)
+
+(use-package transpose-frame :ensure t)
+
+(use-package ace-window
+  :ensure t
+  :custom-face
+  (aw-leading-char-face ((t (:foreground "yellow" :weight bold :height 3.0))))
+  :config
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+
+(defun my/transpose-frame ()
+  "Transpose frame, hiding treemacs first to avoid side-window conflicts."
+  (interactive)
+  (let ((treemacs-open (and (fboundp 'treemacs-get-local-window)
+                            (treemacs-get-local-window))))
+    (when treemacs-open (treemacs))
+    (transpose-frame)
+    (when treemacs-open (treemacs))))
+
+(defhydra hydra-window (:color red)
+  "Window management"
+  ("h" windmove-left "go left")
+  ("j" windmove-down "go down")
+  ("k" windmove-up "go up")
+  ("l" windmove-right "go right")
+  ("v" split-window-right "split vertical")
+  ("s" split-window-below "split horizontal")
+  ("t" my/transpose-frame "transpose")
+  ("w" ace-window "pick window")
+  ("x" ace-swap-window "swap windows")
+  ("d" delete-window "delete")
+  ("o" delete-other-windows "only this")
+  ("q" nil "quit" :color blue))
+
+(global-set-key (kbd "C-c w") 'hydra-window/body)
+
 (provide '.emacs)
 ;;; .emacs ends here
 
@@ -330,12 +392,74 @@ the sequences will be lost."
 (global-set-key (kbd "M-s i") 'consult-imenu)
 (global-set-key (kbd "M-s b") 'consult-buffer)     ;; "b" for Buffer switcher
 
-(use-package dired-preview
+;; --- zoxide (yazi-style `z'/`zi' smart directory jump) ---
+;; Needs the `zoxide' CLI (installed). `zoxide-find-file' lists all tracked
+;; dirs for a fuzzy pick via vertico -- the equivalent of yazi's `zi'.
+(use-package zoxide
   :ensure t
+  :init
+  ;; Open the picked directory straight into dirvish.
+  (setq zoxide-find-file-function #'dirvish)
+  ;; Feed the zoxide database as you navigate in Emacs.
+  (add-hook 'find-file-hook  #'zoxide-add)
+  (add-hook 'dired-mode-hook #'zoxide-add)
+  :bind
+  ("C-c z" . zoxide-find-file))         ; jump from anywhere
+
+;; --- dirvish (yazi-like file manager built on Dired) ---
+;; Miller-column layout + live file previews (images, pdf, archives, code).
+;; Replaces dired-preview. For full previews install CLI helpers:
+;;   sudo apt install ffmpegthumbnailer mediainfo poppler-utils imagemagick tar unzip
+
+;; Yazi-style `s' search: `dirvish-fd' only prompts for a pattern when called
+;; with C-u C-u, otherwise it just lists everything. This wrapper always asks
+;; for the search term up front and runs fd in the current directory.
+(defun my/dirvish-fd-search (patterns)
+  "Prompt for PATTERNS and run an fd file-name search in the current dir.
+PATTERNS is a comma-separated list of fd regexes (ANDed together)."
+  (interactive (list (completing-read-multiple "Search files (fd): " nil)))
+  (dirvish-fd default-directory patterns))
+
+(use-package dirvish
+  :ensure t
+  :init
+  ;; Use dirvish in place of plain Dired everywhere.
+  (dirvish-override-dired-mode)
+  :custom
+  ;; Quick-access entries shown in the side panel (press `a').
+  (dirvish-quick-access-entries
+   '(("h" "~/"            "Home")
+     ("p" "~/sysdig/"     "Sysdig")
+     ("e" "~/.emacs.d/"   "Emacs")))
   :config
-  (dired-preview-global-mode 1)
-  ;; Optional: Set the delay before the preview pops up (in seconds)
-  (setq dired-preview-delay 0.1))
+  ;; Attributes shown in the file list (icons via your nerd-icons, git state...).
+  (setq dirvish-attributes
+        '(nerd-icons collapse git-msg file-time file-size subtree-state))
+  ;; Image/video/gif/audio thumbnails need a graphical frame (and vipsthumbnail).
+  ;; In a terminal they raise "Window system frame should be used" / missing-program
+  ;; errors, so drop them there and keep only the TTY-friendly previewers.
+  (unless (display-graphic-p)
+    (setq dirvish-preview-dispatchers
+          (cl-set-difference dirvish-preview-dispatchers
+                             '(image gif video audio epub))))
+  ;; Show full path + a short Dired-style header line.
+  (setq dirvish-mode-line-format '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-header-line-format '(:left (path) :right (free-space)))
+  :bind
+  (("C-c d" . dirvish)                 ; open dirvish in current dir
+   ("C-c D" . dirvish-fd)              ; fuzzy-find files into a dirvish buffer
+   :map dirvish-mode-map
+   ("a"   . dirvish-quick-access)
+   ("TAB" . dirvish-subtree-toggle)    ; expand/collapse a dir inline
+   ("h"   . dired-up-directory)        ; yazi/vim-style nav
+   ("l"   . dired-find-file)
+   ("y"   . dirvish-yank-menu)
+   ("s"   . my/dirvish-fd-search)       ; yazi-style: prompt + fd name search
+   ("z"   . zoxide-find-file)           ; yazi `zi': fuzzy-jump to a frequent dir
+   ("/"   . dirvish-narrow)             ; live filter of the current listing
+   ("o"   . dirvish-quicksort)          ; sort menu (moved off `s')
+   ("f"   . dirvish-file-info-menu)
+   ("M-t" . dirvish-layout-toggle)))   ; toggle the miller-column preview layout
 
 ;; --- FIXED NAVIGATION & SEARCH ---
 
@@ -475,6 +599,15 @@ the sequences will be lost."
   ;; Match the shell alias's flags if you want them in Emacs too:
   ;; (setq claude-code-program-switches '("--settings" "/home/francesco.emmi/.claude/spinner-verbs.json"))
   (claude-code-mode)              ; global mode (mode-line + buffer tracking)
+  (setq claude-code-no-delete-other-windows t)
+  ;; Open Claude in a right-side window, mirroring treemacs on the left.
+  (setq claude-code-display-window-fn
+        (lambda (buffer)
+          (display-buffer buffer
+                          '(display-buffer-in-side-window
+                            (side . right)
+                            (window-width . 0.35)
+                            (slot . 0)))))
   :bind-keymap
   ("C-c c" . claude-code-command-map)   ; prefix: C-c c x = send command WITH CONTEXT
   :bind
