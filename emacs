@@ -1,5 +1,11 @@
 ;;; Code:
 (setq password-cache-expiry nil)
+(setq select-enable-clipboard t)
+(setq select-enable-primary t)
+(use-package xclip
+  :ensure t
+  :config
+  (xclip-mode 1))
 
 ;; (require 'ido) (ido-mode t)
 
@@ -117,7 +123,8 @@
 	neotree nerd-icons-completion protobuf-mode restclient
 	rust-mode simpleclip smart-compile sr-speedbar transpose-frame
 	tree-sitter tree-sitter-langs treemacs treemacs-magit
-	treemacs-projectile w3 which-key yaml-mode yasnippet zoxide))
+	treemacs-projectile w3 which-key xclip yaml-mode yasnippet
+	zoxide))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir
