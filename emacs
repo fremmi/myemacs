@@ -104,27 +104,7 @@
  '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
- '(package-selected-packages
-   '(ag agent-shell all-the-icons-completion auto-complete-c-headers
-	auto-complete-clang auto-complete-clang-async auto-org-md
-	biomejs-format chatgpt-shell chronos clang-format claude-code
-	cmake-ide cmake-mode company company-ctags company-irony
-	company-quickhelp consult consult-lsp consult-projectile
-	cpp-capf cpputils-cmake dash dired-preview docker docker-api
-	docker-cli docker-compose-mode docker-tramp dockerfile-mode
-	doom-modeline editorconfig egg-timer elpy envrc es-mode
-	flycheck forge fzf ggtags gh gh-md gh-notify
-	gnu-elpa-keyring-update go-autocomplete go-dlv go-guru go-mode
-	graphviz-dot-mode helm helm-fuzzy-find irony jq-format jq-mode
-	json-mode json-navigator kubed kubernetes kubernetes-helm
-	kubernetes-tramp log4j-mode logview lsp-java lsp-mode lsp-ui
-	magit magit-gh-pulls magithub markdown-mode markdown-toc
-	md-readme meghanada melpa-upstream-visit neato-graph-bar
-	neotree nerd-icons-completion protobuf-mode restclient
-	rust-mode simpleclip smart-compile sr-speedbar transpose-frame
-	tree-sitter tree-sitter-langs treemacs treemacs-magit
-	treemacs-projectile w3 which-key xclip yaml-mode yasnippet
-	zoxide))
+ '(package-selected-packages nil)
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir
@@ -221,6 +201,10 @@ the sequences will be lost."
 (add-hook 'c-mode-common-hook
   (lambda()
     (global-set-key  (kbd "C-c o") 'ff-find-other-file)))
+
+;; Show line numbers when editing C/C++ and Rust code
+(add-hook 'c-mode-common-hook 'display-line-numbers-mode)
+(add-hook 'rust-mode-hook 'display-line-numbers-mode)
 
 (use-package company
   :ensure t
@@ -418,14 +402,144 @@ the sequences will be lost."
 ;; Replaces dired-preview. For full previews install CLI helpers:
 ;;   sudo apt install ffmpegthumbnailer mediainfo poppler-utils imagemagick tar unzip
 
-;; Yazi-style `s' search: `dirvish-fd' only prompts for a pattern when called
-;; with C-u C-u, otherwise it just lists everything. This wrapper always asks
-;; for the search term up front and runs fd in the current directory.
+;; --------------------------------------------------------------------------
+;; Yazi-faithful keymap helpers.
+;; The goal: every key you press in yazi does the same thing in dirvish, so you
+;; only have to remember one set of bindings. yazi's default keymap is mirrored
+;; below (motion h/j/k/l + gg/G, Space/v selection, y/x/p copy-cut-paste,
+;; d/D trash-delete, a create, r rename, . hidden, , sort, s/S/z/Z find, etc.).
+;; --------------------------------------------------------------------------
+
+;; `s': yazi-style fd name search. `dirvish-fd' only prompts with C-u C-u and
+;; otherwise lists everything, so this wrapper always asks for the term up front.
 (defun my/dirvish-fd-search (patterns)
   "Prompt for PATTERNS and run an fd file-name search in the current dir.
 PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   (interactive (list (completing-read-multiple "Search files (fd): " nil)))
   (dirvish-fd default-directory patterns))
+
+;; gg / G : jump to the first/last real file (skipping header lines).
+(defun my/dirvish-top ()
+  "yazi `gg': move to the first file."
+  (interactive) (goto-char (point-min)) (dired-next-line 1))
+(defun my/dirvish-bottom ()
+  "yazi `G': move to the last file."
+  (interactive) (goto-char (point-max)) (dired-previous-line 1))
+
+;; <Space> : toggle the mark on the current file, then advance (like yazi).
+(defun my/dirvish-toggle-mark-down ()
+  "yazi `<Space>': toggle the mark on the current file, then move down."
+  (interactive)
+  (if (save-excursion (beginning-of-line) (looking-at-p dired-re-mark))
+      (dired-unmark 1)
+    (dired-mark 1)))
+
+;; <C-a> : select all.   <C-r> : invert the current selection.
+(defun my/dirvish-mark-all ()
+  "yazi `<C-a>': mark every file in the listing."
+  (interactive) (dired-unmark-all-marks) (dired-toggle-marks))
+
+;; y / x / p : copy / cut / paste, the yazi two-step way (stage, then paste at
+;; the destination). Backed by dired-ranger; `x' just flags the stage as a move.
+(defvar my/dired-ranger-cut nil
+  "Non-nil when the last stage (`x') was a cut rather than a copy.")
+(defun my/dirvish-yank-copy (&optional arg)
+  "yazi `y': stage the marked/current files for a copy."
+  (interactive "P")
+  (setq my/dired-ranger-cut nil)
+  (dired-ranger-copy arg))
+(defun my/dirvish-yank-cut (&optional arg)
+  "yazi `x': stage the marked/current files for a move."
+  (interactive "P")
+  (setq my/dired-ranger-cut t)
+  (dired-ranger-copy arg))
+(defun my/dirvish-paste ()
+  "yazi `p': paste here, moving if the stage was a cut, else copying."
+  (interactive)
+  (if my/dired-ranger-cut (dired-ranger-move) (dired-ranger-paste)))
+
+;; d / D : trash / delete-permanently the marked or current files.
+(defun my/dirvish-trash ()
+  "yazi `d': move the marked/current files to the system trash."
+  (interactive)
+  (let ((delete-by-moving-to-trash t)) (dired-do-delete)))
+(defun my/dirvish-delete-permanently ()
+  "yazi `D': delete the marked/current files permanently (no trash)."
+  (interactive)
+  (let ((delete-by-moving-to-trash nil)) (dired-do-delete)))
+
+;; a : create a file, or a directory if the name ends in `/' (matches yazi).
+(defun my/dirvish-create (name)
+  "yazi `a': create NAME; a trailing slash makes a directory."
+  (interactive (list (read-string "Create (end with / for a directory): ")))
+  (if (string-suffix-p "/" name)
+      (dired-create-directory (directory-file-name name))
+    (dired-create-empty-file name)))
+
+;; . : toggle visibility of dotfiles by flipping ls's `-A' switch.
+(defun my/dirvish-toggle-hidden ()
+  "yazi `.': toggle whether dotfiles are shown."
+  (interactive)
+  (let ((sw (or dired-actual-switches "-l")))
+    (dired-sort-other
+     (if (string-match-p "[aA]" sw)
+         (replace-regexp-in-string "[aA]" "" sw)
+       (concat sw "A")))))
+
+;; S : ripgrep file contents under the current dir.   Z : fzf-style file jump.
+(defun my/dirvish-rg ()
+  "yazi `S': ripgrep file contents under the current directory."
+  (interactive)
+  (if (fboundp 'consult-ripgrep) (consult-ripgrep default-directory)
+    (call-interactively #'rgrep)))
+(defun my/dirvish-fzf ()
+  "yazi `Z': fuzzy-find a file under the current dir and jump to it."
+  (interactive)
+  (if (fboundp 'consult-fd) (consult-fd default-directory)
+    (dirvish-fd default-directory "")))
+
+;; o / O : open with the system default app (dirs are entered, as in yazi).
+(defun my/dirvish-open-externally ()
+  "yazi `o': open the file with the system default application."
+  (interactive)
+  (if (file-directory-p (dired-get-filename))
+      (dired-find-file)
+    (if (fboundp 'dired-do-open) (dired-do-open) (browse-url-of-dired-file))))
+
+;; cn : copy the file name without its extension (yazi's copy-name-no-ext).
+(defun my/dirvish-copy-name-no-ext ()
+  "yazi `cn': copy the current file name, sans extension, to the kill-ring."
+  (interactive)
+  (let ((n (file-name-sans-extension (file-name-nondirectory (dired-get-filename t)))))
+    (kill-new n) (message "Copied: %s" n)))
+
+;; `g' prefix: go-to / bookmarks, mirroring yazi's `g' menu.
+(defun my/dirvish-cd (dir) "Open DIR in dirvish." (dired (expand-file-name dir)))
+(defvar my/dirvish-goto-map
+  (let ((m (make-sparse-keymap)))
+    (define-key m "g" #'my/dirvish-top)                                       ; gg -> top
+    (define-key m "h" (lambda () (interactive) (my/dirvish-cd "~/")))         ; gh -> home
+    (define-key m "c" (lambda () (interactive) (my/dirvish-cd "~/.config")))  ; gc -> config
+    (define-key m "d" (lambda () (interactive) (my/dirvish-cd "~/Downloads"))); gd -> downloads
+    (define-key m "p" (lambda () (interactive) (my/dirvish-cd "~/sysdig")))   ; gp -> sysdig
+    (define-key m "e" (lambda () (interactive) (my/dirvish-cd "~/.emacs.d"))) ; ge -> emacs
+    (define-key m "a" #'dirvish-quick-access)                                 ; ga -> access menu
+    (define-key m "f" #'dirvish-file-info-menu)                               ; gf -> file info
+    m)
+  "yazi-style `g' prefix for dirvish: go-to / bookmarks.")
+
+;; `c' prefix: copy path/name to the kill-ring, mirroring yazi's `c' menu.
+(defvar my/dirvish-copy-map
+  (let ((m (make-sparse-keymap)))
+    (define-key m "c" #'dirvish-copy-file-path)        ; cc -> full path
+    (define-key m "d" #'dirvish-copy-file-directory)   ; cd -> directory path
+    (define-key m "f" #'dirvish-copy-file-name)        ; cf -> file name
+    (define-key m "n" #'my/dirvish-copy-name-no-ext)   ; cn -> name without ext
+    m)
+  "yazi-style `c' prefix for dirvish: copy path/name.")
+
+;; dired-ranger gives yazi's stage-then-paste copy/cut/paste model.
+(use-package dired-ranger :ensure t)
 
 (use-package dirvish
   :ensure t
@@ -433,7 +547,7 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   ;; Use dirvish in place of plain Dired everywhere.
   (dirvish-override-dired-mode)
   :custom
-  ;; Quick-access entries shown in the side panel (press `a').
+  ;; Quick-access bookmarks (yazi `g a' / `g <key>').
   (dirvish-quick-access-entries
    '(("h" "~/"            "Home")
      ("p" "~/sysdig/"     "Sysdig")
@@ -452,21 +566,50 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   ;; Show full path + a short Dired-style header line.
   (setq dirvish-mode-line-format '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-format '(:left (path) :right (free-space)))
+  ;; Prefix maps are easiest to attach directly (use-package :bind is per-key).
+  (define-key dirvish-mode-map "g" my/dirvish-goto-map)   ; yazi `g' go-to prefix
+  (define-key dirvish-mode-map "c" my/dirvish-copy-map)   ; yazi `c' copy prefix
   :bind
   (("C-c d" . dirvish)                 ; open dirvish in current dir
    ("C-c D" . dirvish-fd)              ; fuzzy-find files into a dirvish buffer
    :map dirvish-mode-map
-   ("a"   . dirvish-quick-access)
-   ("TAB" . dirvish-subtree-toggle)    ; expand/collapse a dir inline
-   ("h"   . dired-up-directory)        ; yazi/vim-style nav
-   ("l"   . dired-find-file)
-   ("y"   . dirvish-yank-menu)
-   ("s"   . my/dirvish-fd-search)       ; yazi-style: prompt + fd name search
-   ("z"   . zoxide-find-file)           ; yazi `zi': fuzzy-jump to a frequent dir
-   ("/"   . dirvish-narrow)             ; live filter of the current listing
-   ("o"   . dirvish-quicksort)          ; sort menu (moved off `s')
-   ("f"   . dirvish-file-info-menu)
-   ("M-t" . dirvish-layout-toggle)))   ; toggle the miller-column preview layout
+   ;; --- motion ---
+   ("h"       . dired-up-directory)          ; leave dir  (to the parent pane)
+   ("<left>"  . dired-up-directory)          ; yazi: arrow-left = leave dir
+   ("j"       . dired-next-line)             ; down  (overrides dired's goto)
+   ("k"       . dired-previous-line)         ; up    (overrides dired's kill)
+   ("l"       . dired-find-file)             ; enter dir / open in Emacs
+   ("<right>" . dired-find-file)             ; yazi: arrow-right = enter dir
+   ("G"     . my/dirvish-bottom)             ; gg is on the `g' prefix above
+   ("TAB"   . dirvish-subtree-toggle)        ; expand/collapse a dir inline (bonus)
+   ;; --- selection ---
+   ("SPC"   . my/dirvish-toggle-mark-down)   ; toggle mark + move down
+   ("v"     . dired-mark)                    ; visual: marks region or current
+   ("V"     . dired-unmark)                  ; visual unselect
+   ("C-a"   . my/dirvish-mark-all)           ; select all
+   ("C-r"   . dired-toggle-marks)            ; invert selection
+   ;; --- file operations ---
+   ("y"     . my/dirvish-yank-copy)          ; stage copy
+   ("x"     . my/dirvish-yank-cut)           ; stage cut
+   ("p"     . my/dirvish-paste)              ; paste here
+   ("d"     . my/dirvish-trash)              ; trash
+   ("D"     . my/dirvish-delete-permanently) ; delete permanently
+   ("a"     . my/dirvish-create)             ; create file/dir
+   ("r"     . dired-do-rename)               ; rename
+   ("o"     . my/dirvish-open-externally)    ; open with system app
+   ("O"     . dired-do-open)                 ; open interactively
+   (";"     . dired-do-shell-command)        ; run a shell command
+   (":"     . dired-do-async-shell-command)  ; run a shell command (async)
+   ;; --- find / filter / sort / jump ---
+   ("/"     . dired-isearch-filenames)       ; find (jump to a name)
+   ("f"     . dirvish-narrow)                ; live filter of the listing
+   ("s"     . my/dirvish-fd-search)          ; fd file-name search
+   ("S"     . my/dirvish-rg)                 ; ripgrep file contents
+   ("z"     . zoxide-find-file)              ; zoxide smart-jump
+   ("Z"     . my/dirvish-fzf)                ; fzf-style fuzzy file jump
+   ("."     . my/dirvish-toggle-hidden)      ; toggle dotfiles
+   (","     . dirvish-quicksort)             ; sort menu
+   ("M-t"   . dirvish-layout-toggle)))       ; toggle miller-column layout (bonus)
 
 ;; --- FIXED NAVIGATION & SEARCH ---
 
@@ -607,15 +750,35 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   ;; (setq claude-code-program-switches '("--settings" "/home/francesco.emmi/.claude/spinner-verbs.json"))
   (claude-code-mode)              ; global mode (mode-line + buffer tracking)
   (setq claude-code-no-delete-other-windows t)
-  ;; Open Claude in a right-side window, mirroring treemacs on the left.
+  ;; Open Claude in a dedicated right-side window; no other buffer can replace it.
   (setq claude-code-display-window-fn
         (lambda (buffer)
-          (display-buffer buffer
-                          '(display-buffer-in-side-window
-                            (side . right)
-                            (window-width . 0.35)
-                            (slot . 0)))))
+          (let ((win (display-buffer
+                      buffer
+                      '(display-buffer-in-side-window
+                        (side . right)
+                        (window-width . 0.35)
+                        (slot . 0)
+                        (window-parameters . ((dedicated . t)
+                                              (no-other-window . nil)))))))
+            (when win
+              (set-window-dedicated-p win t))
+            win)))
   :bind-keymap
   ("C-c c" . claude-code-command-map)   ; prefix: C-c c x = send command WITH CONTEXT
   :bind
-  ("C-c a" . claude-code-transient))    ; transient menu
+  ("C-c a" . claude-code-transient)     ; transient menu
+  ("C-c C-a" . my/jump-to-claude-window))
+
+(defun my/jump-to-claude-window ()
+  "Jump to the Claude Code window, crossing frames if needed."
+  (interactive)
+  (let ((win (cl-find-if
+              (lambda (w)
+                (string-prefix-p "*claude" (buffer-name (window-buffer w))))
+              (window-list-1 nil 'nomini t))))
+    (if win
+        (progn
+          (select-frame-set-input-focus (window-frame win))
+          (select-window win))
+      (claude-code))))
