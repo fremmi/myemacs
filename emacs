@@ -195,8 +195,21 @@ the sequences will be lost."
   (python-mode . lsp)
   (protobuf-mode . lsp))
 
-(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :config
+  (setq lsp-ui-doc-enable t
+        lsp-ui-doc-show-with-cursor t
+        lsp-ui-doc-show-with-mouse nil
+        lsp-ui-doc-position 'at-point
+        lsp-ui-doc-delay 0.5
+        lsp-ui-doc-include-signature t)
+  (define-key lsp-ui-mode-map (kbd "C-c d") #'lsp-ui-doc-focus-frame))
 
+(use-package rust-mode
+  :ensure t
+  :config
+  (setq rust-format-on-save t))
 
 (add-hook 'c-mode-common-hook
   (lambda()
@@ -506,6 +519,18 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
       (dired-find-file)
     (if (fboundp 'dired-do-open) (dired-do-open) (browse-url-of-dired-file))))
 
+;; J : open the current file with jless in a new tmux window (great for JSON).
+;; Requires Emacs to be running inside a tmux session; the jless window closes
+;; when you quit jless, dropping you back to the Emacs/dirvish window.
+(defun my/dirvish-jless ()
+  "yazi-style `J': open the current file with jless in a new tmux window."
+  (interactive)
+  (let ((file (dired-get-filename)))
+    (if (getenv "TMUX")
+        (start-process "dirvish-jless" nil "tmux" "new-window"
+                       (format "jless %s" (shell-quote-argument file)))
+      (user-error "Not inside a tmux session"))))
+
 ;; cn : copy the file name without its extension (yazi's copy-name-no-ext).
 (defun my/dirvish-copy-name-no-ext ()
   "yazi `cn': copy the current file name, sans extension, to the kill-ring."
@@ -598,6 +623,7 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
    ("r"     . dired-do-rename)               ; rename
    ("o"     . my/dirvish-open-externally)    ; open with system app
    ("O"     . dired-do-open)                 ; open interactively
+   ("J"     . my/dirvish-jless)              ; open with jless in a new tmux window
    (";"     . dired-do-shell-command)        ; run a shell command
    (":"     . dired-do-async-shell-command)  ; run a shell command (async)
    ;; --- find / filter / sort / jump ---
@@ -759,10 +785,12 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
                         (side . right)
                         (window-width . 0.35)
                         (slot . 0)
-                        (window-parameters . ((dedicated . t)
-                                              (no-other-window . nil)))))))
+                        (window-parameters . ((no-other-window . nil)))))))
             (when win
-              (set-window-dedicated-p win t))
+              ;; Strong dedication (non-nil, non-t): blocks not just
+              ;; `display-buffer' reuse but also `switch-to-buffer' /
+              ;; `set-window-buffer', so no other buffer can take this window.
+              (set-window-dedicated-p win 'claude))
             win)))
   :bind-keymap
   ("C-c c" . claude-code-command-map)   ; prefix: C-c c x = send command WITH CONTEXT
