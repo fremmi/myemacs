@@ -104,7 +104,27 @@
  '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
  '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(ag agent-shell all-the-icons-completion auto-complete-c-headers
+	auto-complete-clang auto-complete-clang-async auto-org-md
+	biomejs-format chatgpt-shell chronos clang-format claude-code
+	cmake-ide cmake-mode company-ctags company-irony
+	company-quickhelp consult-lsp consult-projectile
+	cpputils-cmake dired-preview dired-ranger dirvish docker
+	docker-api docker-cli docker-compose-mode docker-tramp
+	dockerfile-mode doom-modeline doom-themes eat egg-timer elpy
+	envrc es-mode fzf ggtags gh-md gh-notify
+	gnu-elpa-keyring-update go-autocomplete go-dlv go-guru
+	graphviz-dot-mode helm-fuzzy-find hierarchy jq-format jq-mode
+	json-mode json-navigator kubed kubernetes kubernetes-helm
+	kubernetes-tramp latex-extra latex-preview-pane log4j-mode
+	logview lsp-java lsp-ui magit-gh-pulls marginalia markdown-toc
+	md-readme meghanada melpa-upstream-visit memoize
+	neato-graph-bar neotree nerd-icons-completion orderless
+	origami protobuf-mode realgud-jdb restclient rust-mode
+	simpleclip smart-compile sr-speedbar transpose-frame
+	tree-sitter-langs treemacs-magit treemacs-projectile vertico
+	vterm which-key xclip zoxide))
  '(reb-re-syntax 'string)
  '(safe-local-variable-values
    '((cmake-ide-build-dir
@@ -204,7 +224,9 @@ the sequences will be lost."
         lsp-ui-doc-position 'at-point
         lsp-ui-doc-delay 0.5
         lsp-ui-doc-include-signature t)
-  (define-key lsp-ui-mode-map (kbd "C-c d") #'lsp-ui-doc-focus-frame))
+  ;; NOTE: keep off "C-c d" — that's the global dirvish binding; a minor-mode
+  ;; map would shadow it in LSP buffers.
+  (define-key lsp-ui-mode-map (kbd "C-c u") #'lsp-ui-doc-focus-frame))
 
 (use-package rust-mode
   :ensure t
@@ -466,10 +488,13 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   (interactive "P")
   (setq my/dired-ranger-cut t)
   (dired-ranger-copy arg))
-(defun my/dirvish-paste ()
-  "yazi `p': paste here, moving if the stage was a cut, else copying."
-  (interactive)
-  (if my/dired-ranger-cut (dired-ranger-move) (dired-ranger-paste)))
+(defun my/dirvish-paste (&optional arg)
+  "yazi `p': paste here, moving if the stage was a cut, else copying.
+ARG is passed through to dired-ranger (both `dired-ranger-paste' and
+`dired-ranger-move' require it): with \\[universal-argument] keep the
+selection on the stack, or a numeric prefix pastes the nth entry."
+  (interactive "P")
+  (if my/dired-ranger-cut (dired-ranger-move arg) (dired-ranger-paste arg)))
 
 ;; d / D : trash / delete-permanently the marked or current files.
 (defun my/dirvish-trash ()
@@ -571,6 +596,12 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   :init
   ;; Use dirvish in place of plain Dired everywhere.
   (dirvish-override-dired-mode)
+  ;; Dired/dirvish buffers are non-file buffers, so they don't refresh when the
+  ;; directory changes on disk unless auto-revert is told to watch them. Enable
+  ;; global auto-revert for such buffers so adding/removing files updates the
+  ;; listing automatically (as Dirvish's README recommends).
+  (setq global-auto-revert-non-file-buffers t)
+  (global-auto-revert-mode 1)
   :custom
   ;; Quick-access bookmarks (yazi `g a' / `g <key>').
   (dirvish-quick-access-entries
@@ -704,6 +735,63 @@ PATTERNS is a comma-separated list of fd regexes (ANDed together)."
   :ensure t
   :config
   (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+;; --- ediff conflict resolution: "take both A and B" ---
+;; Two knobs, both leaving `ediff-default-variant' at its default `combined' --
+;; the merge buffer keeps starting out with both variants wrapped in markers:
+;;
+;;   - Use git's marker style instead of ediff's "<<<<<<< variant A" /
+;;     ">>>>>>> variant B" / "####### Ancestor" / "======= end", so those markers
+;;     look like a normal conflict.  5 elements is the minimum the code accepts,
+;;     and dropping Ancestor is fine: plain conflict markers (no ||||||| section)
+;;     mean `smerge-ediff' sets up a merge with no ancestor buffer anyway.
+;;   - `d' (below) to take both sides with no delimiters at all.
+;;
+;; NB `magit-ediff-resolve-all' rebinds this buffer-locally, and its value is
+;; malformed upstream (plain quote around unquoted commas), so + signals
+;; "Invalid format" there.  `magit-ediff-resolve-rest' -- the default for
+;; `magit-ediff-dwim' -- is unaffected.
+(setq ediff-combination-pattern
+      '("<<<<<<< HEAD" A "=======" B ">>>>>>> other"))
+
+(defun my/ediff-copy-both-to-C (&optional n)
+  "Copy the Nth diff region of A followed by B into the merge buffer.
+Unlike \\[ediff-combine-diffs] this inserts no conflict markers.  N is a
+prefix argument; without one, act on the current difference region."
+  (interactive "P")
+  (setq n (if (numberp n) (1- n) ediff-current-difference))
+  (when (< n 0)
+    (user-error "Move to a difference region first (n/p)"))
+  (ediff-copy-diff
+   n nil 'C nil
+   (concat (ediff-get-region-contents n 'A ediff-control-buffer)
+           (ediff-get-region-contents n 'B ediff-control-buffer)))
+  (ediff-jump-to-difference (1+ n)))
+
+(defun my/ediff-combine-to-C (&optional n)
+  "Put both variants of the Nth diff region into the merge buffer, with markers.
+Like \\[ediff-combine-diffs] -- the delimiters come from
+`ediff-combination-pattern' -- but always reports what happened instead of
+printing a bare nil when the region already holds the combination."
+  (interactive "P")
+  (setq n (if (numberp n) (1- n) ediff-current-difference))
+  (when (< n 0)
+    (user-error "Move to a difference region first (n/p)"))
+  (let ((combined (ediff-get-combined-region n))
+        (current  (ediff-get-region-contents n 'C ediff-control-buffer)))
+    (if (string= current combined)
+        (message "Region %d already holds both variants" (1+ n))
+      (ediff-copy-diff n nil 'C nil combined)
+      (message "Region %d: took both A and B (type `r' to restore)" (1+ n))))
+  (ediff-jump-to-difference (1+ n)))
+
+;; Only merge jobs have a separate merge buffer to copy into, so bind there.
+;; `+' shadows `ediff-combine-diffs' with the reporting version above.
+(add-hook 'ediff-keymap-setup-hook
+          (lambda ()
+            (when ediff-merge-job
+              (define-key ediff-mode-map "d" #'my/ediff-copy-both-to-C)
+              (define-key ediff-mode-map "+" #'my/ediff-combine-to-C))))
 
 ;; Open files without splitting: always reuse the existing non-treemacs window
 (with-eval-after-load 'treemacs
