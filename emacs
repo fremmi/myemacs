@@ -914,12 +914,16 @@ Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
 (setq org-agenda-files (list my/org-work-file))
 
 ;; Clocking.  `org-clock-persist' keeps a running clock across restarts, so an
-;; Emacs restart mid-task does not silently discard the session.
+;; Emacs restart mid-task does not silently discard the session.  Once idle
+;; for `org-clock-idle-time' minutes, Org offers to resolve the gap (keep,
+;; subtract, or clock out as of idle onset) instead of silently crediting a
+;; forgotten clock with the full elapsed time.
 (require 'org-clock)
 (setq org-clock-into-drawer "LOGBOOK"
       org-clock-out-remove-zero-time-clocks t
       org-clock-persist t
-      org-clock-history-length 25)
+      org-clock-history-length 25
+      org-clock-idle-time 15)
 (org-clock-persistence-insinuate)
 
 ;; Capture.  Each template files a level-2 item under its bucket and starts
@@ -942,8 +946,19 @@ Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
 
 ;; Reporting.  Both views read the same clock data: the clocktable answers
 ;; "how long", the agenda log answers "in what order".
-(require 'org-clock)
 (require 'cl-lib)
+
+(defun my/org-save-work-file-if-current ()
+  "Save the work log's buffer, if it is currently visited and modified.
+Runs on `org-capture-after-finalize-hook' and `org-clock-out-hook', both of
+which fire for any Org file, not just the work log -- so this only acts
+when a buffer visiting `my/org-work-file' exists and has unsaved changes."
+  (let ((buf (find-buffer-visiting my/org-work-file)))
+    (when (and buf (buffer-modified-p buf))
+      (with-current-buffer buf
+        (save-buffer)))))
+(add-hook 'org-capture-after-finalize-hook #'my/org-save-work-file-if-current)
+(add-hook 'org-clock-out-hook #'my/org-save-work-file-if-current)
 
 (defun my/org-open-work-file ()
   "Visit the work log."

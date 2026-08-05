@@ -10,6 +10,23 @@
 
 (require 'ert)
 (require 'org)
+(require 'org-clock)
+(require 'cl-lib) ;; used below for `cl-count', `cl-letf', `cl-some'
+
+;; Loading ~/.emacs (above) runs the real config, which sets
+;; `org-clock-persist' to t and calls `org-clock-persistence-insinuate'.
+;; That insinuation puts `org-clock-save' on `kill-emacs-hook', and
+;; `ert-run-tests-batch-and-exit' ends the process by calling `kill-emacs' --
+;; so, left alone, every test run overwrites the user's real
+;; ~/.emacs.d/org-clock-save.el with this batch process's (irrelevant, and
+;; possibly clock-less) state, discarding any real in-flight clock.
+;;
+;; Fix scope: remove only the hook, not `org-clock-persist' itself.  A test
+;; below asserts the config sets `org-clock-persist' to t; leaving the
+;; variable alone keeps that assertion honest regardless of test order,
+;; while still eliminating the actual destructive write (which happens via
+;; `org-clock-save' on `kill-emacs-hook', not via the variable being t).
+(remove-hook 'kill-emacs-hook #'org-clock-save)
 
 (ert-deftest my/org-work-file-points-at-the-work-log ()
   "`my/org-work-file' is an absolute path to an existing work.org."
@@ -67,6 +84,11 @@
   (should (equal org-clock-into-drawer "LOGBOOK"))
   (should org-clock-persist)
   (should org-clock-out-remove-zero-time-clocks))
+
+(ert-deftest my/org-clock-idle-time-is-fifteen-minutes ()
+  "Org offers to resolve idle time after 15 minutes, so a forgotten clock-out
+does not silently credit a ticket with hours nobody worked."
+  (should (equal org-clock-idle-time 15)))
 
 (ert-deftest my/org-report-commands-are-interactive ()
   "The reporting entry points exist and are commands."
@@ -211,6 +233,28 @@ Uses a temporary work file and a stubbed `completing-read'."
           (should (cl-some (lambda (s) (string-match-p "SD-1 first thing" s)) offered))
           (should (cl-some (lambda (s) (string-match-p "ESC-9 second thing" s)) offered))
           (should (org-clocking-p)))
+      (when (org-clocking-p) (org-clock-out nil t))
+      (let ((buf (find-buffer-visiting tmp)))
+        (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
+      (delete-file tmp))))
+
+(ert-deftest my/org-clock-out-saves-the-work-file ()
+  "Clocking out of an item in the work log saves it, so the log on disk
+never lags behind what is in the buffer waiting for the next report run."
+  (let* ((tmp (make-temp-file
+               "work-" nil ".org"
+               (concat "#+TITLE: Work Log\n\n"
+                       "* Tickets\n** SD-1 first thing :ticket:\n")))
+         (my/org-work-file tmp))
+    (unwind-protect
+        (with-current-buffer (find-file-noselect tmp)
+          (goto-char (point-min))
+          (re-search-forward "^\\*\\* SD-1")
+          (org-clock-in)
+          (should (org-clocking-p))
+          (org-clock-out)
+          (should-not (org-clocking-p))
+          (should-not (buffer-modified-p)))
       (when (org-clocking-p) (org-clock-out nil t))
       (let ((buf (find-buffer-visiting tmp)))
         (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
