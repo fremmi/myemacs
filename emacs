@@ -102,7 +102,6 @@
  '(indent-tabs-mode t)
  '(large-file-warning-threshold 300000000)
  '(lsp-clients-clangd-args '("--header-insertion-decorators=0"))
- '(org-agenda-files nil)
  '(package-check-signature 'allow-unsigned)
  '(package-selected-packages
    '(ag agent-shell all-the-icons-completion auto-complete-c-headers
@@ -898,3 +897,18 @@ printing a bare nil when the region already holds the combination."
           (select-frame-set-input-focus (window-frame win))
           (select-window win))
       (claude-code))))
+
+;; --- Org: daily work tracking on C-c j ------------------------------------
+;; Tracks three kinds of work as level-2 items under three buckets in one
+;; file: tickets, escalations, and unplanned work.  There is deliberately no
+;; TODO/deadline machinery: this records what was done, not what is owed.
+;; Chronology and time totals are both derived from `org-clock' data, so the
+;; tree is organised by item rather than by date.
+
+(setq org-directory (expand-file-name "~/sysdig/org"))
+
+(defvar my/org-work-file (expand-file-name "work.org" org-directory)
+  "The single file holding the work log.
+Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
+
+(setq org-agenda-files (list my/org-work-file))
