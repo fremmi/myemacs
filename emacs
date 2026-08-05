@@ -939,3 +939,51 @@ Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
          (file+olp ,my/org-work-file "Unplanned")
          "* %^{Description} :unplanned:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?"
          :clock-in t :clock-keep t)))
+
+;; Reporting.  Both views read the same clock data: the clocktable answers
+;; "how long", the agenda log answers "in what order".
+(require 'org-clock)
+(require 'cl-lib)
+
+(defun my/org-open-work-file ()
+  "Visit the work log."
+  (interactive)
+  (find-file my/org-work-file))
+
+(defun my/org-clock-report (range)
+  "Rebuild the clocktable for RANGE under the `Reports' heading of the work log.
+RANGE is an Org clocktable :block value such as \"today\", \"thisweek\" or
+\"lastweek\".  Any previous table is replaced, so reports refresh in place
+instead of accumulating."
+  (interactive
+   (list (completing-read "Range: " '("today" "thisweek" "lastweek") nil t "today")))
+  (with-current-buffer (find-file-noselect my/org-work-file)
+    (org-with-wide-buffer
+     (goto-char (point-min))
+     (if (re-search-forward "^\\* Reports[ \t]*$" nil t)
+         (org-back-to-heading t)
+       (goto-char (point-max))
+       (unless (bolp) (insert "\n"))
+       (insert "\n* Reports\n")
+       (org-back-to-heading t))
+     ;; Clear whatever the previous run left behind.
+     (let ((end (save-excursion (org-end-of-subtree t t))))
+       (forward-line 1)
+       (delete-region (point) end))
+     (insert (format (concat "#+BEGIN: clocktable :maxlevel 3 :scope file"
+                            " :block %s :link t :fileskip0 t\n#+END:\n")
+                     range))
+     (re-search-backward "^#\\+BEGIN: clocktable" nil t)
+     (org-update-dblock)))
+  (my/org-open-work-file)
+  (goto-char (point-min))
+  (re-search-forward "^\\* Reports[ \t]*$" nil t)
+  nil)
+
+(defun my/org-agenda-log ()
+  "Show one day's agenda with clocked entries listed chronologically.
+This is the standup view: what happened, in what order."
+  (interactive)
+  (let ((org-agenda-start-with-log-mode '(clock))
+        (org-agenda-span 'day))
+    (org-agenda nil "a")))

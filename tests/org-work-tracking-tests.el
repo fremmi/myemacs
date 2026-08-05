@@ -67,3 +67,41 @@
   (should (equal org-clock-into-drawer "LOGBOOK"))
   (should org-clock-persist)
   (should org-clock-out-remove-zero-time-clocks))
+
+(ert-deftest my/org-report-commands-are-interactive ()
+  "The reporting entry points exist and are commands."
+  (dolist (fn '(my/org-clock-report my/org-agenda-log my/org-open-work-file))
+    (should (fboundp fn))
+    (should (commandp fn))))
+
+(ert-deftest my/org-clock-report-builds-one-table-under-reports ()
+  "Reporting creates a `* Reports' heading holding exactly one clocktable.
+Runs against a temporary copy so the real work log is never touched."
+  (let* ((tmp (make-temp-file "work-" nil ".org"
+                              "#+TITLE: Work Log\n\n* Tickets\n\n* Escalations\n\n* Unplanned\n"))
+         (my/org-work-file tmp))
+    (unwind-protect
+        (progn
+          (my/org-clock-report "today")
+          (with-current-buffer (find-file-noselect tmp)
+            (let ((text (buffer-string)))
+              (should (string-match-p "^\\* Reports$" text))
+              ;; Exactly one table, and it is a clocktable for today.
+              (should (= 1 (cl-count "#+BEGIN: clocktable"
+                                     (split-string text "\n")
+                                     :test (lambda (needle line)
+                                             (string-prefix-p needle line)))))
+              (should (string-match-p ":block today" text))))
+          ;; Re-running refreshes in place rather than appending a second table.
+          (my/org-clock-report "thisweek")
+          (with-current-buffer (find-file-noselect tmp)
+            (let ((text (buffer-string)))
+              (should (= 1 (cl-count "#+BEGIN: clocktable"
+                                     (split-string text "\n")
+                                     :test (lambda (needle line)
+                                             (string-prefix-p needle line)))))
+              (should (string-match-p ":block thisweek" text))
+              (should-not (string-match-p ":block today" text)))))
+      (let ((buf (find-buffer-visiting tmp)))
+        (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
+      (delete-file tmp))))
