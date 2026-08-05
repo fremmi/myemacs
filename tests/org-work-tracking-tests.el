@@ -168,3 +168,50 @@ a fixture where `Reports' is NOT the last heading in the file."
       (let ((buf (find-buffer-visiting tmp)))
         (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
       (delete-file tmp))))
+
+(ert-deftest my/org-prefix-map-is-on-c-c-j ()
+  "C-c j is a prefix map with the expected commands behind it."
+  (should (keymapp (key-binding (kbd "C-c j"))))
+  (dolist (pair '(("C-c j c" . org-capture)
+                  ("C-c j i" . my/org-clock-in-item)
+                  ("C-c j o" . org-clock-out)
+                  ("C-c j g" . org-clock-goto)
+                  ("C-c j r" . my/org-clock-report)
+                  ("C-c j a" . my/org-agenda-log)
+                  ("C-c j f" . my/org-open-work-file)))
+    (should (eq (key-binding (kbd (car pair))) (cdr pair)))))
+
+(ert-deftest my/org-existing-bindings-are-untouched ()
+  "org-store-link keeps C-c l, and Org has not taken claude-code's keys.
+Deliberately does not assert what C-c c / C-c a *are* -- use-package binds
+those lazily via :bind-keymap, so their value in batch mode is an
+implementation detail.  What matters is that Org did not claim them."
+  (should (eq (key-binding (kbd "C-c l")) 'org-store-link))
+  (should-not (eq (key-binding (kbd "C-c c")) 'org-capture))
+  (should-not (eq (key-binding (kbd "C-c a")) 'org-agenda)))
+
+(ert-deftest my/org-clock-in-item-offers-the-files-items ()
+  "`my/org-clock-in-item' completes over level-2 items and clocks into the pick.
+Uses a temporary work file and a stubbed `completing-read'."
+  (let* ((tmp (make-temp-file
+               "work-" nil ".org"
+               (concat "#+TITLE: Work Log\n\n* Tickets\n** SD-1 first thing :ticket:\n"
+                       "* Escalations\n** ESC-9 second thing :escalation:\n"
+                       "* Unplanned\n")))
+         (my/org-work-file tmp)
+         offered)
+    (unwind-protect
+        (progn
+          (cl-letf (((symbol-function 'completing-read)
+                     (lambda (_prompt collection &rest _)
+                       (setq offered collection)
+                       (car collection))))
+            (my/org-clock-in-item))
+          (should (= 2 (length offered)))
+          (should (cl-some (lambda (s) (string-match-p "SD-1 first thing" s)) offered))
+          (should (cl-some (lambda (s) (string-match-p "ESC-9 second thing" s)) offered))
+          (should (org-clocking-p)))
+      (when (org-clocking-p) (org-clock-out nil t))
+      (let ((buf (find-buffer-visiting tmp)))
+        (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
+      (delete-file tmp))))

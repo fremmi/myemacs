@@ -1003,3 +1003,38 @@ This is the standup view: what happened, in what order."
   (let ((org-agenda-start-with-log-mode '(clock))
         (org-agenda-span 'day))
     (org-agenda nil "a")))
+
+(defun my/org-clock-in-item ()
+  "Pick an existing item from the work log by completion and clock into it.
+This is how a ticket or escalation is resumed on a later day."
+  (interactive)
+  (let ((buf (find-file-noselect my/org-work-file))
+        (items nil))
+    (with-current-buffer buf
+      (org-with-wide-buffer
+       (org-map-entries
+        (lambda ()
+          (when (= (org-current-level) 2)
+            (push (cons (org-format-outline-path
+                         (org-get-outline-path t) 120 nil " / ")
+                        (point))
+                  items))))))
+    (setq items (nreverse items))
+    (unless items
+      (user-error "No items yet in %s -- capture one with C-c j c" my/org-work-file))
+    (let* ((choice (completing-read "Clock into: " (mapcar #'car items) nil t))
+           (pos (cdr (assoc choice items))))
+      (with-current-buffer buf
+        (org-with-point-at pos (org-clock-in))))))
+
+;; --- Work-tracking hub on C-c j ---
+;; C-c c and C-c a, Org's usual capture/agenda keys, belong to claude-code.
+(define-prefix-command 'my-org-map)
+(global-set-key (kbd "C-c j") 'my-org-map)
+(define-key my-org-map (kbd "c") #'org-capture)            ;; c/t/e/u to capture
+(define-key my-org-map (kbd "i") #'my/org-clock-in-item)    ;; resume an item
+(define-key my-org-map (kbd "o") #'org-clock-out)
+(define-key my-org-map (kbd "g") #'org-clock-goto)          ;; jump to running clock
+(define-key my-org-map (kbd "r") #'my/org-clock-report)     ;; how long
+(define-key my-org-map (kbd "a") #'my/org-agenda-log)       ;; what happened, in order
+(define-key my-org-map (kbd "f") #'my/org-open-work-file)
