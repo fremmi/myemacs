@@ -912,3 +912,30 @@ printing a bare nil when the region already holds the combination."
 Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
 
 (setq org-agenda-files (list my/org-work-file))
+
+;; Clocking.  `org-clock-persist' keeps a running clock across restarts, so an
+;; Emacs restart mid-task does not silently discard the session.
+(require 'org-clock)
+(setq org-clock-into-drawer "LOGBOOK"
+      org-clock-out-remove-zero-time-clocks t
+      org-clock-persist t
+      org-clock-history-length 25)
+(org-clock-persistence-insinuate)
+
+;; Capture.  Each template files a level-2 item under its bucket and starts
+;; clocking immediately, so "I am starting this" is one gesture.  ID and
+;; description are separate prompts to keep the ID greppable at a fixed
+;; position in the headline.
+(setq org-capture-templates
+      `(("t" "Ticket" entry
+         (file+olp ,my/org-work-file "Tickets")
+         "* %^{Ticket ID} %^{Description} :ticket:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?"
+         :clock-in t :clock-keep t)
+        ("e" "Escalation" entry
+         (file+olp ,my/org-work-file "Escalations")
+         "* %^{Escalation ID} %^{Description} :escalation:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?"
+         :clock-in t :clock-keep t)
+        ("u" "Unplanned" entry
+         (file+olp ,my/org-work-file "Unplanned")
+         "* %^{Description} :unplanned:\n:PROPERTIES:\n:CREATED: %U\n:END:\n%?"
+         :clock-in t :clock-keep t)))
