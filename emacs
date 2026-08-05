@@ -953,28 +953,44 @@ Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
 (defun my/org-clock-report (range)
   "Rebuild the clocktable for RANGE under the `Reports' heading of the work log.
 RANGE is an Org clocktable :block value such as \"today\", \"thisweek\" or
-\"lastweek\".  Any previous table is replaced, so reports refresh in place
-instead of accumulating."
+\"lastweek\".  Only the clocktable dynamic block is replaced or updated in
+place; any other content under `* Reports' (notes, child headings, other
+dynamic blocks) is left untouched.  Creates the heading and/or the table if
+either is missing.  The work file is saved once the table is up to date."
   (interactive
    (list (completing-read "Range: " '("today" "thisweek" "lastweek") nil t "today")))
   (with-current-buffer (find-file-noselect my/org-work-file)
     (org-with-wide-buffer
      (goto-char (point-min))
-     (if (re-search-forward "^\\* Reports[ \t]*$" nil t)
-         (org-back-to-heading t)
+     (unless (re-search-forward "^\\* Reports[ \t]*$" nil t)
        (goto-char (point-max))
        (unless (bolp) (insert "\n"))
-       (insert "\n* Reports\n")
-       (org-back-to-heading t))
-     ;; Clear whatever the previous run left behind.
-     (let ((end (save-excursion (org-end-of-subtree t t))))
-       (forward-line 1)
-       (delete-region (point) end))
-     (insert (format (concat "#+BEGIN: clocktable :maxlevel 3 :scope file"
-                            " :block %s :link t :fileskip0 t\n#+END:\n")
-                     range))
-     (re-search-backward "^#\\+BEGIN: clocktable" nil t)
-     (org-update-dblock)))
+       (insert "\n* Reports\n"))
+     (org-back-to-heading t)
+     (let ((subtree-end (save-excursion (org-end-of-subtree t t))))
+       (if (re-search-forward "^#\\+BEGIN: clocktable\\b.*$" subtree-end t)
+           ;; An existing clocktable dblock: update its :block param in
+           ;; place, then refresh it, touching nothing else in the subtree.
+           (progn
+             (beginning-of-line)
+             (let ((line-end (line-end-position)))
+               (if (re-search-forward ":block +[^ \t\n]+" line-end t)
+                   (replace-match (format ":block %s" range))
+                 (goto-char line-end)
+                 (insert (format " :block %s" range))))
+             (beginning-of-line)
+             (org-update-dblock))
+         ;; No existing clocktable in this subtree: append a fresh one at
+         ;; the end, after whatever the user already put there.
+         (goto-char subtree-end)
+         (skip-chars-backward "\n")
+         (insert "\n")
+         (insert (format (concat "#+BEGIN: clocktable :maxlevel 3 :scope file"
+                                " :block %s :link t :fileskip0 t\n#+END:\n")
+                        range))
+         (forward-line -2)
+         (org-update-dblock)))
+     (save-buffer)))
   (my/org-open-work-file)
   (goto-char (point-min))
   (re-search-forward "^\\* Reports[ \t]*$" nil t)

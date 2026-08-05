@@ -105,3 +105,66 @@ Runs against a temporary copy so the real work log is never touched."
       (let ((buf (find-buffer-visiting tmp)))
         (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
       (delete-file tmp))))
+
+(defun my/org-test--count-matches (regexp text)
+  "Count non-overlapping matches of REGEXP in TEXT."
+  (let ((count 0) (start 0))
+    (while (string-match regexp text start)
+      (setq count (1+ count))
+      (setq start (match-end 0)))
+    count))
+
+(ert-deftest my/org-clock-report-preserves-user-content-and-later-headings ()
+  "Report generation touches only the clocktable dblock.  Hand-written notes
+and child headings under `Reports', and headings that come after it, must
+survive verbatim across repeated calls with different ranges.  Also covers
+a fixture where `Reports' is NOT the last heading in the file."
+  (let* ((fixture (concat "#+TITLE: Work Log\n\n"
+                           "* Tickets\n\n* Escalations\n\n"
+                           "* Reports\n"
+                           "Some hand-written note.\n"
+                           "** Child Heading\n"
+                           "Child content here.\n\n"
+                           "* Unplanned\n"
+                           "unplanned content\n"))
+         (tmp (make-temp-file "work-" nil ".org" fixture))
+         (my/org-work-file tmp))
+    (unwind-protect
+        (progn
+          (my/org-clock-report "today")
+          (with-current-buffer (find-file-noselect tmp)
+            (let ((text (buffer-string)))
+              (should (string-match-p "Some hand-written note\\." text))
+              (should (string-match-p "^\\*\\* Child Heading$" text))
+              (should (string-match-p "Child content here\\." text))
+              (should (string-match-p "^\\* Unplanned$" text))
+              (should (string-match-p "unplanned content" text))
+              (should (= 1 (my/org-test--count-matches "^\\* Reports$" text)))
+              (should (= 1 (my/org-test--count-matches "^#\\+BEGIN: clocktable" text)))
+              (should (string-match-p ":block today" text))
+              (should-not (buffer-modified-p))))
+          ;; Re-run with a different range: same checks, block param updated.
+          (my/org-clock-report "thisweek")
+          (with-current-buffer (find-file-noselect tmp)
+            (let ((text (buffer-string)))
+              (should (string-match-p "Some hand-written note\\." text))
+              (should (string-match-p "^\\*\\* Child Heading$" text))
+              (should (string-match-p "Child content here\\." text))
+              (should (string-match-p "^\\* Unplanned$" text))
+              (should (string-match-p "unplanned content" text))
+              (should (= 1 (my/org-test--count-matches "^\\* Reports$" text)))
+              (should (= 1 (my/org-test--count-matches "^#\\+BEGIN: clocktable" text)))
+              (should (string-match-p ":block thisweek" text))
+              (should-not (string-match-p ":block today" text))
+              (should-not (buffer-modified-p))))
+          ;; The save actually reached disk, not just the live buffer.
+          (with-temp-buffer
+            (insert-file-contents tmp)
+            (let ((text (buffer-string)))
+              (should (string-match-p "^#\\+BEGIN: clocktable" text))
+              (should (string-match-p ":block thisweek" text))
+              (should (string-match-p "Some hand-written note\\." text))
+              (should (string-match-p "unplanned content" text)))))
+      (let ((buf (find-buffer-visiting tmp)))
+        (when buf (with-current-buffer buf (set-buffer-modified-p nil) (kill-buffer buf))))
+      (delete-file tmp))))
