@@ -28,6 +28,13 @@
 ;; `org-clock-save' on `kill-emacs-hook', not via the variable being t).
 (remove-hook 'kill-emacs-hook #'org-clock-save)
 
+;; The same insinuation also puts `org-clock-load' on `org-mode-hook'.  If the
+;; suite is run while a real clock is running, the persist file holds a resume
+;; clock, and `org-clock-load' would then `y-or-n-p' inside a batch process
+;; with no stdin and clock in against the real work.org -- writing a CLOCK line
+;; into the user's log.  Reading is harmless; that write is not.
+(remove-hook 'org-mode-hook #'org-clock-load)
+
 (ert-deftest my/org-work-file-points-at-the-work-log ()
   "`my/org-work-file' is an absolute path to an existing work.org."
   (should (boundp 'my/org-work-file))

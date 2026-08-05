@@ -952,11 +952,18 @@ Contains three level-1 buckets: Tickets, Escalations, Unplanned.")
   "Save the work log's buffer, if it is currently visited and modified.
 Runs on `org-capture-after-finalize-hook' and `org-clock-out-hook', both of
 which fire for any Org file, not just the work log -- so this only acts
-when a buffer visiting `my/org-work-file' exists and has unsaved changes."
+when a buffer visiting `my/org-work-file' exists and has unsaved changes.
+
+Saving is wrapped in `with-demoted-errors': if the file changed on disk
+behind the buffer (a `git pull' in ~/sysdig/org, say), `save-buffer' prompts
+and can signal -- and an erroring hook would abort the rest of the capture
+or clock-out.  A failed save degrades to a message; the buffer stays
+modified and can be saved by hand."
   (let ((buf (find-buffer-visiting my/org-work-file)))
     (when (and buf (buffer-modified-p buf))
       (with-current-buffer buf
-        (save-buffer)))))
+        (with-demoted-errors "Could not save work log: %S"
+          (save-buffer))))))
 (add-hook 'org-capture-after-finalize-hook #'my/org-save-work-file-if-current)
 (add-hook 'org-clock-out-hook #'my/org-save-work-file-if-current)
 
